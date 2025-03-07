@@ -5,10 +5,52 @@
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+float3 GetNormalFromTriangle(float3 p0, float3 p1, float3 p2)
+{
+    return normalize(cross(p1 - p0, p2 - p0));
+}
+
+float3 GetTrangleCenter(float3 p0, float3 p1, float3 p2)
+{
+    return (p0 + p1 + p2) / 3.0;
+}
+
+float3 GetTriangelCenter(float2 p0, float2 p1, float2 p2)
+{
+    return (p0 + p1 + p2) / 3.0;
+}
+
+// This describes a vertex on the source mesh
+struct SourceVertex
+{
+    float3 positionOS; //Position in Object Space
+    float2 uv;
+};
+
+//This descrives a vertex on the generated mesh
+struct DrawVertex
+{
+    float3 positionWS; //Position in World Space
+    float2 uv;
+};
+
+// We have to insert 3 vertices for each triangle at once so that the triangle stays connected.
+struct DrawTriangle
+{
+    float3 normalWS; //Normal in world space. All vertices have the same normal
+    DrawVertex vertices[3];
+};
+
+//Compute buffers
+StructuredBuffer<SourceVertex> _SourceVertices;
+StructuredBuffer<int> _SourceTriangles;
+AppendStructuredBuffer<DrawTriangle> _DrawTriangles;
+
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    Result[id.xy] = float4(id.x & id.y, (id.x & 15) / 15.0, (id.y & 15) / 15.0, 0.0);
 }
