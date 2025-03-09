@@ -15,7 +15,7 @@ float3 GetTrangleCenter(float3 p0, float3 p1, float3 p2)
     return (p0 + p1 + p2) / 3.0;
 }
 
-float3 GetTriangelCenter(float2 p0, float2 p1, float2 p2)
+float2 GetTriangelCenter(float2 p0, float2 p1, float2 p2)
 {
     return (p0 + p1 + p2) / 3.0;
 }
@@ -46,8 +46,8 @@ StructuredBuffer<SourceVertex> _SourceVertices;
 StructuredBuffer<int> _SourceTriangles;
 AppendStructuredBuffer<DrawTriangle> _DrawTriangles;
 
-
-[numthreads(8, 8, 1)]
+// This is the number of threads to create per dispatch. This kernel only uses the x value, so you can fin tune that if needed
+[numthreads(128, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     // TODO: insert actual code here!
