@@ -12,7 +12,7 @@ public class SampleCompute : MonoBehaviour
     {
         int kernel = cs.FindKernel("CSMain");
 
-        result = new RenderTexture(1024, 512, 24);
+        result = new RenderTexture(512, 512, 24);
         result.enableRandomWrite = true;
         result.Create();
         cs.SetTexture(kernel, "Result", result);
