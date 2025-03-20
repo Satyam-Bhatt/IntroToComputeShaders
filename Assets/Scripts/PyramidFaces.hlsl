@@ -4,6 +4,7 @@
 
 // Include the helper functions from URP
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
 #include "NMGPyramidGraphicsHelpers.hlsl"
 
 // This describes a vertex on the generated SetMeshOutputCounts, it should match that in the compute shader
@@ -29,7 +30,7 @@ struct VertexOutput
     float3 positionWS : TEXCOORD0; // position in world space
     float3 normalWS : TEXCOORD1; // normal in world space
     float2 uv : TEXCOORD2; // UVs
-    float3 positionCS : SV_Position; // position in clip space
+    float4 positionCS : SV_Position; // position in clip space
 };
 
 //The _MainTex property, The sampler and scale/offset vector is also created
@@ -55,7 +56,7 @@ VertexOutput Vertex(uint vertexID : SV_VertexID)
     
     output.positionWS = input.positionWS;
     output.normalWS = tri.normalWS;
-    output.uv = TRANSFORM_TEX(input.uv, _MainTex_ST);
+    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
     
     // Apply shadow caster logic to the CS position
     output.positionCS = CalculatePositionCSWithShadowCasterLogic(input.positionWS, tri.normalWS);
@@ -81,7 +82,7 @@ float4 Fragment(VertexOutput input) : SV_Target
     lightingInput.shadowCoord = CalculateShadowCoord(lightingInput.positionWS, input.positionCS);
     
     // Read the main texture
-    float3 albedo = SAMPLE_TEXTURE_2D(_MainTex, sampler_MainTex, input.uv).rgb;
+    float3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).rgb;
     
     // Call the URP's simple lighting function
     // The arguments are lightingInput, albedo color, specular color, smoothness, emission color, and alpha
@@ -90,3 +91,6 @@ float4 Fragment(VertexOutput input) : SV_Target
     
 #endif
 }
+
+#endif
+
