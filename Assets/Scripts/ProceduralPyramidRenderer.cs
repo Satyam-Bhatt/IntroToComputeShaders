@@ -8,6 +8,8 @@ public class ProceduralPyramidRenderer : MonoBehaviour
     [SerializeField] private Mesh sourceMesh = default;
     [Tooltip("The pyramid geometry creating compute shader")]
     [SerializeField] private ComputeShader pyramidComputeShader = default;
+    [Tooltip("The triangle count adjustment compute shader")]
+    [SerializeField] private ComputeShader triToVertComputeShader = default;
     [Tooltip("The material to render the pyramid mesh")]
     [SerializeField] private Material material = default;
     [Tooltip("Whether the pyramid should cast shadows")]
@@ -36,7 +38,9 @@ public class ProceduralPyramidRenderer : MonoBehaviour
     private ComputeBuffer argsBuffer;
     // The id of the kernel in the pyramid compute shader
     private int idPyramidKernel;
-    // The id of the kernel in the tri to vert count compute shader
+    // The id of the kernel in the tri to ver count compute shader
+    private int idTriToVertKernel;
+    // The x dispatch size for the pyramid compute shader
     private int dispatchSize;
     // The local bounds of the generated mesh
     private Bounds localBounds;
@@ -93,12 +97,15 @@ public class ProceduralPyramidRenderer : MonoBehaviour
 
         // Cache the kernel IDs we will be dispatching
         idPyramidKernel = pyramidComputeShader.FindKernel("CSMain");
+        idTriToVertKernel = triToVertComputeShader.FindKernel("Main");
 
         // Set data on the shaders
         pyramidComputeShader.SetBuffer(idPyramidKernel, "_SourceVertices", sourceVertBuffer);
         pyramidComputeShader.SetBuffer(idPyramidKernel, "_SourceTriangles", sourceTriBuffer);
         pyramidComputeShader.SetBuffer(idPyramidKernel, "_DrawTriangles", drawBuffer);
         pyramidComputeShader.SetInt("_NumSourceTriangles", numTriangles);
+
+        triToVertComputeShader.SetBuffer(idTriToVertKernel, "_IndirectArgsBuffer", argsBuffer);
 
         material.SetBuffer("_DrawTriangles", drawBuffer);
 
@@ -163,6 +170,11 @@ public class ProceduralPyramidRenderer : MonoBehaviour
         // Copy the count (stack size) of the draw buffer to the args buffer, at byte position zero
         // This sets the vertex count for our draw procedural indirect call
         ComputeBuffer.CopyCount(drawBuffer, argsBuffer, 0);
+
+        // This the compute shader outputs triangles, but the graphics shader needs the number of vertices,
+        // we need to multiply the vertex count by three. We'll do this on the GPU with a compute shader
+        // so we don't have to transfer data back to the CPU
+        triToVertComputeShader.Dispatch(idTriToVertKernel, 1, 1, 1);
 
         // DrawProceduralIndirect queues a draw call up for our generated mesh
         // It will receive a shadow casting pass, like normal
