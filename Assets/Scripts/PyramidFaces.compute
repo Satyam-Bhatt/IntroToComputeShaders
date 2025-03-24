@@ -27,7 +27,7 @@ struct SourceVertex
     float2 uv;
 };
 
-//This descrives a vertex on the generated mesh
+//This describes a vertex on the generated mesh
 struct DrawVertex
 {
     float3 positionWS; //Position in World Space
@@ -42,8 +42,10 @@ struct DrawTriangle
 };
 
 //Compute buffers it is how unity stores a mesh
+// StructuredBuffer a read only type buffer which can take a generic type. It is like an array
 StructuredBuffer<SourceVertex> _SourceVertices;
 StructuredBuffer<int> _SourceTriangles;
+// Output buffer where we can add elements on top
 AppendStructuredBuffer<DrawTriangle> _DrawTriangles;
 
 //Other variables set by the renderer script (C# script) 
@@ -102,7 +104,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     center.uv = GetTriangelCenter(inputVertices[0].uv, inputVertices[1].uv, inputVertices[2].uv);
     
     //Create the three triangles
-    //Triangles mus wind clockwise or they will not render by default
+    //Triangles must wind clockwise or they will not render by default
     SetupAndOutputTriangle(inputVertices[0], inputVertices[1], center);
     SetupAndOutputTriangle(inputVertices[1], inputVertices[2], center);
     SetupAndOutputTriangle(inputVertices[2], inputVertices[0], center);
