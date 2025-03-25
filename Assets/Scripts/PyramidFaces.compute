@@ -49,6 +49,7 @@ StructuredBuffer<int> _SourceTriangles;
 AppendStructuredBuffer<DrawTriangle> _DrawTriangles;
 
 //Other variables set by the renderer script (C# script) 
+// These are lke proprties of a graphics shader
 int _NumSourceTriangles;
 float _PyramidHeight;
 float4x4 _LocalToWorld;
@@ -78,7 +79,7 @@ void SetupAndOutputTriangle(DrawVertex v0, DrawVertex v1, DrawVertex v2)
     _DrawTriangles.Append(tri);
 }
 
-// This is the number of threads to create per dispatch. This kernel only uses the x value, so you can fin tune that if needed
+// This is the number of threads to create per dispatch. This kernel only uses the x value, so you can fine tune that if needed
 [numthreads(128, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
