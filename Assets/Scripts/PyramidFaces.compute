@@ -83,12 +83,13 @@ void SetupAndOutputTriangle(DrawVertex v0, DrawVertex v1, DrawVertex v2)
 [numthreads(128, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    // Dispatch can only be in chunks of 128, there might be more threads than the nu,ber of triangles. Return in that case
+    // Dispatch can only be in chunks of 128, there might be more threads than the number of triangles. Return in that case
+    // it makes sure that don't assign 129 thread to 129 triangle. 129 triangle should start from 0 again
     if ((int)id.x >= _NumSourceTriangles)
         return;
 
     //Get the vertices which make up this triangle
-    //The triabgle array contains indicies to the vertex array
+    //The triangle array contains indicies to the vertex array
     //Three values in the triangle array describes one triangle in a source mesh
     int triStart = id.x * 3;
     DrawVertex inputVertices[3];
@@ -101,7 +102,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     float3 triNormal = GetNormalFromTriangle(inputVertices[0].positionWS, inputVertices[1].positionWS, inputVertices[2].positionWS);
     // Find the center position and extrude by _PyramidHeight along the normal
     center.positionWS = GetTriangelCenter(inputVertices[0].positionWS, inputVertices[1].positionWS, inputVertices[2].positionWS) + triNormal * _PyramidHeight;
-    //Average the UBs as well
+    //Average the UVs as well
     center.uv = GetTriangelCenter(inputVertices[0].uv, inputVertices[1].uv, inputVertices[2].uv);
     
     //Create the three triangles
