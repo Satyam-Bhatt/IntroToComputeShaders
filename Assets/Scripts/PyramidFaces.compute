@@ -84,7 +84,7 @@ void SetupAndOutputTriangle(DrawVertex v0, DrawVertex v1, DrawVertex v2)
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     // Dispatch can only be in chunks of 128, there might be more threads than the nu,ber of triangles. Return in that case
-    if (id.x >= _NumSourceTriangles)
+    if ((int)id.x >= _NumSourceTriangles)
         return;
 
     //Get the vertices which make up this triangle
