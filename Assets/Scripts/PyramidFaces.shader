@@ -34,8 +34,6 @@ Shader "Custom/PyramidFacesCompute"
             #pragma vertex Vertex
             #pragma fragment Fragment
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
             // Include our logic file
             #include "PyramidFaces.hlsl"    
 
@@ -64,8 +62,6 @@ Shader "Custom/PyramidFacesCompute"
 
             // Define a special keyword so our logic can change if inside the shadow caster pass
             #define SHADOW_CASTER_PASS
-
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             // Include our logic file
             #include "PyramidFaces.hlsl"
