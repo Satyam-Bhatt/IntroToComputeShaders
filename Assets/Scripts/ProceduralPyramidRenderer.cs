@@ -133,6 +133,7 @@ public class ProceduralPyramidRenderer : MonoBehaviour
     }
 
     // This applies the game objects's transform to the local bounds
+    // https://discussions.unity.com/t/can-39-t-convert-bounds-from-world-coordinates-to-local-coordinates/57667
     public Bounds TransformBounds(Bounds boundsOS)
     {
         var center = transform.TransformPoint(boundsOS.center);

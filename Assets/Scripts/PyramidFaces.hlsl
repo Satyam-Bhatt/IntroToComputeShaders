@@ -54,6 +54,7 @@ VertexOutput Vertex(uint vertexID : SV_VertexID)
     DrawTriangle tri = _DrawTriangles[vertexID / 3];
     DrawVertex input = tri.vertices[vertexID % 3];
     
+    // Fill in data in Vertex Output Struct
     output.positionWS = input.positionWS;
     output.normalWS = tri.normalWS;
     output.uv = TRANSFORM_TEX(input.uv, _MainTex);
