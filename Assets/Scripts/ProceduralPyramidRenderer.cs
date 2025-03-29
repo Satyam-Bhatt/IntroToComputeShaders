@@ -90,7 +90,7 @@ public class ProceduralPyramidRenderer : MonoBehaviour
         argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
         // The data in the args buffer corresponds to:
         // 0: vertex count per draw instance. We will only use one instance
-        // 1: instance counr. One
+        // 1: number of instances. One
         // 2: start vertex location if using a Graphics Buffer
         // 3: and start instance location if using a Graphics Buffer
         argsBuffer.SetData(new int[] { 0, 1, 0, 0 });
@@ -179,6 +179,6 @@ public class ProceduralPyramidRenderer : MonoBehaviour
 
         // DrawProceduralIndirect queues a draw call up for our generated mesh
         // It will receive a shadow casting pass, like normal
-        Graphics.DrawProceduralIndirect(material, bounds, MeshTopology.Triangles, argsBuffer, 0, null, null, UnityEngine.Rendering.ShadowCastingMode.Off, true, gameObject.layer);
+        Graphics.DrawProceduralIndirect(material, bounds, MeshTopology.Triangles, argsBuffer, 0, null, null, UnityEngine.Rendering.ShadowCastingMode.On, true, gameObject.layer);
     }
 }
