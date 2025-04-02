@@ -316,7 +316,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &781260513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -518,6 +518,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e26c6ba7ae57dc242ad2ea1ccbf79113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cubePosition: {fileID: 0}
+  moveComputeShader: {fileID: 7200000, guid: ce0e58e31fa54aa428061eebd6347874, type: 3}
+  offset: 1
 --- !u!23 &1410351662
 MeshRenderer:
   m_ObjectHideFlags: 0
