@@ -50,10 +50,11 @@ Shader "Unlit/CubeMaterial"
             varyings vert (attributes v, const uint instance_id : SV_InstanceID) // What Difference between instance_id and vertexID
             {
                 float4 startPos = position[instance_id];
-                const float3 world_start = startPos.xyz + v.vertex.xyz;
+                float3 world_pos  = startPos.xyz + v.vertex.xyz;
+                //world_pos = world_pos + sin(_Time.y);
 
                 varyings o;
-                o.vertex = TransformWorldToHClip(v.vertex);;
+                o.vertex = TransformWorldToHClip(float4(world_pos, 1.0));;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }

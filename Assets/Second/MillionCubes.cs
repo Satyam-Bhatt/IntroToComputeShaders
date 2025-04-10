@@ -8,7 +8,7 @@ public class MillionCubes : MonoBehaviour
     [SerializeField] private Material instanceMaterial;
 
     private ComputeBuffer argsBuffer;
-    private const int ARGS_STRIDE = sizeof(uint) * 4;
+    private const int ARGS_STRIDE = sizeof(uint) * 5;
 
     private ComputeBuffer positionBuffer;
     private const int POSITION_STRIDE = sizeof(float) * 4;
@@ -16,10 +16,10 @@ public class MillionCubes : MonoBehaviour
     private void OnEnable()
     {
         argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
-        argsBuffer.SetData(new int[] { 0, 1, 0, 0 });
+        argsBuffer.SetData(new int[] { 0, 1, 0, 0, 0 });
 
-        positionBuffer = new ComputeBuffer(1, POSITION_STRIDE);
-        positionBuffer.SetData(new float[] { 0, 0, 0, 0 });
+        positionBuffer = new ComputeBuffer(2, POSITION_STRIDE);
+        //positionBuffer.SetData(new float[] { 0, 0, 0, 0 });
     }
 
     private void OnDisable()
@@ -38,21 +38,30 @@ public class MillionCubes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // What does this bounds do???
+        //Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
     }
 
     void UpdateBuffers()
     {
-        uint[] _args = { 0, 1, 0, 0 };
+        uint[] _args = { 0, 1, 0, 0, 0 };
         _args[0] = instanceMesh.GetIndexCount(0);
-        _args[1] = 1;
+        _args[1] = 2;
         _args[2] = instanceMesh.GetIndexStart(0);
         _args[3] = instanceMesh.GetBaseVertex(0);
+        _args[4] = 0; // Instance Start
 
         argsBuffer.SetData(_args);
 
-        Vector4[] _positions = { new Vector4(0, 0, 0, 0) };
+        Vector4[] _positions = { 
+            new Vector4(0, 0, 0, 0),
+            new Vector4(2, 2, 2, 0) };
+
         positionBuffer.SetData(_positions);
+
+        instanceMaterial.SetBuffer("position", positionBuffer);
+
     }
 }
