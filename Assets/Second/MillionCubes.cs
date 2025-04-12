@@ -58,19 +58,26 @@ public class MillionCubes : MonoBehaviour
 
         Vector4[] _positions = new Vector4[count];
 
-        for (int i = 0; i < _positions.Length; i++)
+        // Calculate dimensions for a cube grid
+        int dimension = Mathf.CeilToInt(Mathf.Pow(count, 1.0f / 3.0f));
+        float spacing = 2.0f; // Distance between cube centers
+
+        // Calculate the starting offset to center the grid
+        float offset = -spacing * (dimension - 1) / 2.0f;
+
+        for (int i = 0; i < count; i++)
         {
-            if(i == 0)
-            {
-                _positions[i] = new Vector4(0, 0, 0, 0);
-            }
-            else
-            {
-                _positions[i] = new Vector4(i, 0, 0, 0);
-            }
-            //for (int j = 0; j < 100; j++)
-            //{
-            //}
+            // Convert 1D index to 3D coordinates
+            int x = i % dimension;
+            int y = (i / dimension) % dimension;
+            int z = i / (dimension * dimension);
+
+            // Position with equal spacing and centered around origin
+            float posX = offset + x * spacing;
+            float posY = offset + y * spacing;
+            float posZ = offset + z * spacing;
+
+            _positions[i] = new Vector4(posX, posY, posZ, 0);
         }
 
         positionBuffer.SetData(_positions);

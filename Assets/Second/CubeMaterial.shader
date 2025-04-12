@@ -51,7 +51,7 @@ Shader "Unlit/CubeMaterial"
             {
                 float4 startPos = position[instance_id];
                 float3 world_pos  = startPos.xyz + v.vertex.xyz;
-                //world_pos = world_pos + sin(_Time.y);
+                world_pos = world_pos + sin(_Time.y * 2 +  world_pos.z) * 0.2;
 
                 varyings o;
                 o.vertex = TransformWorldToHClip(float4(world_pos, 1.0));;
