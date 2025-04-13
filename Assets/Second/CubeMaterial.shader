@@ -55,7 +55,9 @@ Shader "Unlit/CubeMaterial"
 
                 varyings o;
                 o.vertex = TransformWorldToHClip(float4(world_pos, 1.0));;
+                o.diffuse = saturate(dot(v.normal, _MainLightPosition.xyz));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                //o.color = color;
                 return o;
             }
 
@@ -63,6 +65,8 @@ Shader "Unlit/CubeMaterial"
             {
                 // sample the texture
                 float4 col = tex2D(_MainTex, i.uv);
+                const float3 lighting = i.diffuse *  1.7;
+				col.rgb *= i.diffuse;
                 return col;
             }
             ENDHLSL
