@@ -14,6 +14,11 @@ public class MillionCubes : MonoBehaviour
     private ComputeBuffer positionBuffer;
     private const int POSITION_STRIDE = sizeof(float) * 4;
 
+    private ComputeBuffer positionUpdate;
+    private const int POSITION_UPDATE_STRIDE = sizeof(float) * 4;
+
+    [SerializeField] private Transform position_Mover;
+
     private void OnEnable()
     {
         argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
@@ -21,6 +26,9 @@ public class MillionCubes : MonoBehaviour
 
         positionBuffer = new ComputeBuffer(count, POSITION_STRIDE);
         //positionBuffer.SetData(new float[] { 0, 0, 0, 0 });
+
+        positionUpdate = new ComputeBuffer(1, POSITION_UPDATE_STRIDE);
+        positionUpdate.SetData(new float[] { 0, 0, 0, 0 });
     }
 
     private void OnDisable()
@@ -39,10 +47,38 @@ public class MillionCubes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         // What does this bounds do???
         //Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
+
+        if(Input.GetKey(KeyCode.S))
+        {
+            position_Mover.Translate(new Vector3(0, 0, 10f ) * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.W))
+        {
+            position_Mover.Translate(new Vector3(0, 0, -10f ) * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.A))
+        {
+            position_Mover.Translate(new Vector3(-10f , 0, 0) * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.D))
+        {
+            position_Mover.Translate(new Vector3(10f , 0, 0) * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.Q))
+        {
+            position_Mover.Translate(new Vector3(0, 10f , 0) * Time.deltaTime);
+        }
+        if(Input.GetKey(KeyCode.E))
+        {
+            position_Mover.Translate(new Vector3(0, -10f , 0) * Time.deltaTime);
+        }
+
+        positionUpdate.SetData(new float[] { position_Mover.position.x, position_Mover.position.y, position_Mover.position.z, 0 });
+        instanceMaterial.SetBuffer("positionUpdate", positionUpdate);
+
     }
 
     void UpdateBuffers()
