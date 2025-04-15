@@ -60,7 +60,7 @@ public class MillionCubes : MonoBehaviour
 
         // Calculate dimensions for a cube grid
         int dimension = Mathf.CeilToInt(Mathf.Pow(count, 1.0f / 3.0f));
-        float spacing = 2.0f; // Distance between cube centers
+        float spacing = 1.5f; // Distance between cube centers
 
         // Calculate the starting offset to center the grid
         float offset = -spacing * (dimension - 1) / 2.0f;
