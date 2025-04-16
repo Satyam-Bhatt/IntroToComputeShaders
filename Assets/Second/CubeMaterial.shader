@@ -30,6 +30,7 @@ Shader "Unlit/CubeMaterial"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             StructuredBuffer<float4> position;
+            StructuredBuffer<float4> positionUpdate;
 
             struct attributes
             {
@@ -143,22 +144,37 @@ Shader "Unlit/CubeMaterial"
             varyings vert (attributes v, const uint instance_id : SV_InstanceID) // What Difference between instance_id and vertexID
             {
                 float4 startPos = position[instance_id];
+                float4 objectPosition = positionUpdate[0];
 
                 // Calculate noise based on position and time
-                float3 noiseInput = float3(
-                    startPos.x * _NoiseScale, 
-                    startPos.z * _NoiseScale, 
-                    _Time.y * _NoiseSpeed
-                );
+                // float3 noiseInput = float3(
+                //     startPos.x * _NoiseScale, 
+                //     startPos.z * _NoiseScale, 
+                //     _Time.y * _NoiseSpeed
+                // );
 
                 // Generate noise value between -1 and 1
-                float noiseValue = snoise(noiseInput);
+                //float noiseValue = snoise(noiseInput);
 
                 float3 world_pos  = startPos.xyz + v.vertex.xyz;
-                world_pos.y += noiseValue * _NoiseHeight;
+                //world_pos.y += noiseValue * _NoiseHeight;
+
+                float distance = length(world_pos - objectPosition.xyz);
+                float affect = 0;
+
+                if(distance > 1)
+                {
+                    affect = 1/(distance);
+                }
+                else
+                {
+                    affect = 0;
+                }
+
+                float3 newPos = world_pos + normalize(objectPosition.xyz - world_pos) * affect;
 
                 varyings o;
-                o.vertex = TransformWorldToHClip(float4(world_pos, 1.0));;
+                o.vertex = TransformWorldToHClip(float4(newPos, 1.0));
                 o.diffuse = saturate(dot(v.normal, _MainLightPosition.xyz));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 //o.color = color;

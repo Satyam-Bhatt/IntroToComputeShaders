@@ -27,7 +27,7 @@ public class MillionCubes : MonoBehaviour
         positionBuffer = new ComputeBuffer(count, POSITION_STRIDE);
         //positionBuffer.SetData(new float[] { 0, 0, 0, 0 });
 
-        positionUpdate = new ComputeBuffer(1, POSITION_UPDATE_STRIDE);
+        positionUpdate = new ComputeBuffer(1, POSITION_UPDATE_STRIDE, ComputeBufferType.Structured, ComputeBufferMode.Dynamic);
         positionUpdate.SetData(new float[] { 0, 0, 0, 0 });
     }
 

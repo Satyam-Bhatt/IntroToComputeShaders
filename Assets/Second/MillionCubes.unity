@@ -376,7 +376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instanceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   instanceMaterial: {fileID: 2100000, guid: e193d9b01db720a488453e00b7537623, type: 2}
-  count: 1
+  count: 100
   position_Mover: {fileID: 1572788881}
 --- !u!4 &1737676139
 Transform:
