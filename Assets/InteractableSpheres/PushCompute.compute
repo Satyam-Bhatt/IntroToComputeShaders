@@ -1,14 +1,26 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
+RWStructuredBuffer<float4> Result;
 
-[numthreads(8,8,1)]
+float3 position;
+
+[numthreads(64,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+    float4 basePosition = Result[id.x];
+    
+    //Distance
+    float distance = distance(basePosition.xyz, position);
+    
+    //Remapping
+    float t = smoothstep(30, 0 , distance); // What is this
+    
+    //Push amount
+    float3 dir = normalize(basePosition.xyz - position);
+    float3 pushAmount = dir * lerp(0, 20, t); // What does this lerp work
+    float3 newPosition = basePosition.xyz + pushAmount;
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    Result[id.x] = float4(newPosition, 1);
+    
 }
