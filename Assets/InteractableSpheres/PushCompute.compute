@@ -19,7 +19,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //Push amount
     float3 dir = normalize(basePosition.xyz - position);
     float3 pushAmount = dir * lerp(0, 20, t); // What does this lerp work
-    float3 newPosition = basePosition.xyz + pushAmount;
+    float3 newPosition = basePosition.xyz;// + pushAmount;
 
     Result[id.x] = float4(newPosition, 1);
     
