@@ -47,8 +47,30 @@ public class InteractableSpheres : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        mover.Translate(dir * Time.deltaTime * 20);
+        if (Input.GetKey(KeyCode.S))
+        {
+            mover.Translate(new Vector3(0, 0, 10f) * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            mover.Translate(new Vector3(0, 0, -10f) * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            mover.Translate(new Vector3(-10f, 0, 0) * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            mover.Translate(new Vector3(10f, 0, 0) * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            mover.Translate(new Vector3(0, 10f, 0) * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            mover.Translate(new Vector3(0, -10f, 0) * Time.deltaTime);
+        }
 
         computeShader.SetVector("position", mover.position);
         computeShader.Dispatch(kernel, Mathf.CeilToInt(count / 64.0f), 1, 1);

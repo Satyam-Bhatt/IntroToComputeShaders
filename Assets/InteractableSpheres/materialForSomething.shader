@@ -11,16 +11,27 @@ Shader "Unlit/materialForSomething"
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+            #pragma multi_compile_instancing // What is this??
+
+            // Signal this shader requires compute buffers
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 5.0
+
+            //#include "UnityCG.cginc"
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             StructuredBuffer<float4> position;
 
             struct appdata
             {
+                float3 normal : NORMAL;
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
@@ -29,6 +40,8 @@ Shader "Unlit/materialForSomething"
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                float3 diffuse : TEXCOORD2;
+
             };
 
             sampler2D _MainTex;
@@ -40,18 +53,21 @@ Shader "Unlit/materialForSomething"
                 float3 world_pos  = startPos.xyz + v.vertex.xyz;
 
                 v2f o;
-                o.vertex = UnityObjectToClipPos(float4(world_pos, 1.0));
+                o.vertex = TransformWorldToHClip(float4(world_pos, 1.0));
+                o.diffuse = saturate(dot(v.normal, _MainLightPosition.xyz));
+
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+                float4 col = tex2D(_MainTex, i.uv);
+                col.rgb *= i.diffuse;
                 return col;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }
