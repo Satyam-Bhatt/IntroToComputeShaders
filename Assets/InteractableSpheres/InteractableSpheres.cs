@@ -17,6 +17,8 @@ public class InteractableSpheres : MonoBehaviour
     private ComputeBuffer positionBuffer;
     private const int POSITION_STRIDE = sizeof(float) * 4;
 
+    private ComputeBuffer originalPositionBuffer;
+
     [SerializeField] private Transform mover;
 
     // Start is called before the first frame update
@@ -26,6 +28,8 @@ public class InteractableSpheres : MonoBehaviour
         argsBuffer.SetData(new int[] { 0, 1, 0, 0, 0 });
 
         positionBuffer = new ComputeBuffer(count, POSITION_STRIDE);
+
+        originalPositionBuffer = new ComputeBuffer(count, POSITION_STRIDE);
 
         kernel = computeShader.FindKernel("CSMain");
     }
@@ -37,6 +41,9 @@ public class InteractableSpheres : MonoBehaviour
 
         positionBuffer.Release();
         positionBuffer = null;
+
+        originalPositionBuffer.Release();
+        originalPositionBuffer = null;
     }
 
     private void Start()
@@ -114,7 +121,11 @@ public class InteractableSpheres : MonoBehaviour
         }
 
         positionBuffer.SetData(_positions);
+        originalPositionBuffer.SetData(_positions);
+
         computeShader.SetBuffer(kernel, "Result", positionBuffer);
+        computeShader.SetBuffer(kernel, "OriginalPosition", originalPositionBuffer);
+
 
         instanceMaterial.SetBuffer("position", positionBuffer);
     }
