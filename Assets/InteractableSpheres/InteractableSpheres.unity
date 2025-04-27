@@ -585,9 +585,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0c8937da44ea34fa079d2c96fbb49e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instanceMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  instanceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   instanceMaterial: {fileID: 2100000, guid: baa9f5aea8dce0f4580b3079efe8e012, type: 2}
-  count: 5000000
+  count: 10000
   computeShader: {fileID: 7200000, guid: a3d92940a61e16340b982e87487b9cea, type: 3}
   mover: {fileID: 1010033847}
 --- !u!1660057539 &9223372036854775807
