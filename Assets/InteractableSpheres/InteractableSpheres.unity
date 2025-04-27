@@ -252,6 +252,7 @@ GameObject:
   - component: {fileID: 192171851}
   - component: {fileID: 192171850}
   - component: {fileID: 192171853}
+  - component: {fileID: 192171854}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -377,6 +378,21 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &192171854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 192171849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe950ae05946f314fba3babc22a8dcae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1010033847}
+  smoothSpeed: 10
+  offset: {x: 0, y: 2, z: -7}
 --- !u!1 &1010033843
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +405,8 @@ GameObject:
   - component: {fileID: 1010033846}
   - component: {fileID: 1010033845}
   - component: {fileID: 1010033844}
+  - component: {fileID: 1010033848}
+  - component: {fileID: 1010033849}
   m_Layer: 0
   m_Name: Mover
   m_TagString: Untagged
@@ -482,6 +500,47 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1010033848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1010033843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cca6e81be88c30a4ebfe2e3f91756d84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  rotationSpeed: 120
+  verticalSpeed: 5
+--- !u!143 &1010033849
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1010033843}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1215308338
 GameObject:
   m_ObjectHideFlags: 0
@@ -528,7 +587,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instanceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   instanceMaterial: {fileID: 2100000, guid: baa9f5aea8dce0f4580b3079efe8e012, type: 2}
-  count: 1000
+  count: 10000
   computeShader: {fileID: 7200000, guid: a3d92940a61e16340b982e87487b9cea, type: 3}
   mover: {fileID: 1010033847}
 --- !u!1660057539 &9223372036854775807

@@ -54,33 +54,33 @@ public class InteractableSpheres : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.S))
-        {
-            mover.Translate(new Vector3(0, 0, 10f) * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.W))
-        {
-            mover.Translate(new Vector3(0, 0, -10f) * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            mover.Translate(new Vector3(-10f, 0, 0) * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            mover.Translate(new Vector3(10f, 0, 0) * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.Q))
-        {
-            mover.Translate(new Vector3(0, 10f, 0) * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            mover.Translate(new Vector3(0, -10f, 0) * Time.deltaTime);
-        }
+        //if (Input.GetKey(KeyCode.S))
+        //{
+        //    mover.Translate(new Vector3(0, 0, 10f) * Time.deltaTime);
+        //}
+        //if (Input.GetKey(KeyCode.W))
+        //{
+        //    mover.Translate(new Vector3(0, 0, -10f) * Time.deltaTime);
+        //}
+        //if (Input.GetKey(KeyCode.A))
+        //{
+        //    mover.Translate(new Vector3(-10f, 0, 0) * Time.deltaTime);
+        //}
+        //if (Input.GetKey(KeyCode.D))
+        //{
+        //    mover.Translate(new Vector3(10f, 0, 0) * Time.deltaTime);
+        //}
+        //if (Input.GetKey(KeyCode.Q))
+        //{
+        //    mover.Translate(new Vector3(0, 10f, 0) * Time.deltaTime);
+        //}
+        //if (Input.GetKey(KeyCode.E))
+        //{
+        //    mover.Translate(new Vector3(0, -10f, 0) * Time.deltaTime);
+        //}
 
         computeShader.SetVector("position", mover.position);
-        computeShader.Dispatch(kernel, Mathf.CeilToInt(count / 64.0f), 1, 1);
+        computeShader.Dispatch(kernel, Mathf.CeilToInt(count / 128.0f), 1, 1);
 
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
     }
@@ -126,7 +126,7 @@ public class InteractableSpheres : MonoBehaviour
         computeShader.SetBuffer(kernel, "Result", positionBuffer);
         computeShader.SetBuffer(kernel, "OriginalPosition", originalPositionBuffer);
 
-
         instanceMaterial.SetBuffer("position", positionBuffer);
+        instanceMaterial.SetBuffer("originalPosition", originalPositionBuffer);
     }
 }

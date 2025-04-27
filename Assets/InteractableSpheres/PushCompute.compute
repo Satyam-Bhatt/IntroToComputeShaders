@@ -6,7 +6,7 @@ RWStructuredBuffer<float4> OriginalPosition;
 
 float3 position; // The position of the moving point
 
-[numthreads(64, 1, 1)]
+[numthreads(128, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     float4 basePosition = Result[id.x];
@@ -17,20 +17,21 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     
     //Remapping 
     // 4 good
-    float t = smoothstep(4.0f, 0, dist); // What is this
+    float t = smoothstep(100.0f, 0, dist); // What is this
     
     //Push amount
     float3 dir = normalize(basePosition.xyz - position);
     //0.5 good
-    float3 pushAmount = dir * lerp(0, 1.0f, t); // What does this lerp work
+    float3 pushAmount = dir * lerp(0, 20.0f, t); // What does this lerp work speed of the movement
     float3 newPosition = basePosition.xyz + pushAmount;
     
     float newDist = distance(newPosition, originalPosition.xyz);
+    float remap = smoothstep(0, 150.0f, dist);
+    float3 dirToOriginal = normalize(originalPosition.xyz - newPosition);
+    float3 pullAmount = dirToOriginal * lerp(0, 1.0f, remap);
+    pullAmount = (newDist > 0.1f) ? pullAmount : float3(0, 0, 0);
     
-    if (dist > 5.0f)
-    {
-        newPosition = originalPosition.xyz;
-    }
+    newPosition = newPosition + pullAmount;
 
     Result[id.x] = float4(newPosition, 1);
     
