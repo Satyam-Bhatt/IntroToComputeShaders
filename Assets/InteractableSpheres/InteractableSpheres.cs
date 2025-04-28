@@ -4,14 +4,20 @@ using UnityEngine;
 
 public class InteractableSpheres : MonoBehaviour
 {
+    // Mesh that we will instance can be sphere, square etc
     [SerializeField] private Mesh instanceMesh;
+    // Material for the mesh. It determines how the mesh will be rendered. The position and color are set in here(somewhat only mostly done in compute shader)
     [SerializeField] private Material instanceMaterial;
+    // The count of instances
     [SerializeField] private int count = 0;
+    // Compute shader which manipulates the position of the instances. This controls the push and pull of the instances
     [SerializeField] private ComputeShader computeShader;
-
+    // Id of the kernel in the compute shader. There can be many kernels in the compute shader so we should know which we want to dispatch
     private int kernel;
-
+    // Buffer that stores the arguments for the indirect draw call. Basically it tells how to render the mesh with the instances
     private ComputeBuffer argsBuffer;
+    // Stride for the argsBuffer. argsBuffer has 5 uints so stride is 5*sizeof(uint). Basically the GPU needs to jump this bytes much to get to the 
+    // information for the next instance
     private const int ARGS_STRIDE = sizeof(uint) * 5;
 
     private ComputeBuffer positionBuffer;
@@ -54,31 +60,6 @@ public class InteractableSpheres : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (Input.GetKey(KeyCode.S))
-        //{
-        //    mover.Translate(new Vector3(0, 0, 10f) * Time.deltaTime);
-        //}
-        //if (Input.GetKey(KeyCode.W))
-        //{
-        //    mover.Translate(new Vector3(0, 0, -10f) * Time.deltaTime);
-        //}
-        //if (Input.GetKey(KeyCode.A))
-        //{
-        //    mover.Translate(new Vector3(-10f, 0, 0) * Time.deltaTime);
-        //}
-        //if (Input.GetKey(KeyCode.D))
-        //{
-        //    mover.Translate(new Vector3(10f, 0, 0) * Time.deltaTime);
-        //}
-        //if (Input.GetKey(KeyCode.Q))
-        //{
-        //    mover.Translate(new Vector3(0, 10f, 0) * Time.deltaTime);
-        //}
-        //if (Input.GetKey(KeyCode.E))
-        //{
-        //    mover.Translate(new Vector3(0, -10f, 0) * Time.deltaTime);
-        //}
-
         computeShader.SetVector("position", mover.position);
         computeShader.Dispatch(kernel, Mathf.CeilToInt(count / 128.0f), 1, 1);
 
