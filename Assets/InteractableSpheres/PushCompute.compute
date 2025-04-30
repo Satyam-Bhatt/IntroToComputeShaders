@@ -59,11 +59,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     //newPosition = lerp(newPosition, originalPosition.xyz, convertDistanceFromSphereToBox);
     //=========================================
     
-    float newDist = distance(newPosition.xyz, originalPosition.xyz);
+    float newDist = distance(newPosition.xyz, originalPosition.xyz); // W component = incorrect distance calculation
     float t2 = inverseLerp(10.0f, 40.0f, newDist);
     float3 dir2;
     if (newDist > 0.0001f)
-        dir2 = normalize(originalPosition.xyz - newPosition.xyz);
+        dir2 = normalize(originalPosition.xyz - newPosition.xyz); // When distance is 0 then the direction output is incorrect
     else
         dir2 = float3(0, 0, 0);
     float3 pullAmount2 = dir2 * lerp(0, 10.0f, t2);
