@@ -71,9 +71,13 @@ public class InteractableSpheres : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Every frame we update the position of the object that is pushing things away in the compute shader 
         computeShader.SetVector("position", mover.position);
+        // Dispatch the compute shader as per the numthreads. As we have 128 , 1 , 1 number of threads we divide the count by 128
+        // so that we just dont go over the number of threads and the count starts from 0 every time
         computeShader.Dispatch(kernel, Mathf.CeilToInt(count / 128.0f), 1, 1);
 
+        // Send the GPU instructions to render the instances with the arguments
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
     }
 

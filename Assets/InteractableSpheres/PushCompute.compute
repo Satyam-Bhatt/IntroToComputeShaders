@@ -1,11 +1,14 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
+// Buffer gets updated with the position of each instance 
 RWStructuredBuffer<float4> Result;
+// BUffer that store the original position of the instance
 RWStructuredBuffer<float4> OriginalPosition;
 
 float3 position; // The position of the moving point
 
+// Helps to map value from one range to between 0 - 1
 float inverseLerp(float min, float max, float value)
 {
     // Return 0 if min equals max to avoid division by zero
@@ -16,31 +19,55 @@ float inverseLerp(float min, float max, float value)
     return saturate((value - min) / (max - min));
 }
 
+// Defines how many threads will be used. It is uni dimensional because we are just updating position that means mapulating a data
 [numthreads(128, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+    // We use the id.x to access the data in the buffer. Each data is associated with an id
     float4 basePosition = Result[id.x];
     float4 originalPosition = OriginalPosition[id.x];
     
-    //Distance
+    // Distance between the position of the instance and the moving point
     float dist = distance(basePosition.xyz, position);
     
-    //Remapping 
-    // 4 good
-    float t = smoothstep(20.0f, 0, dist); // What is this
+    // t is 0 when distance is 20 and 1 when distance is 0. It interpolates beteen 0 and 1 as per the distance. But as it is smoothstep so it is smooth curve
+    // This remaps the distance so it can be used in the lerp function. 
+    // This code means that if the distance is more than 20 then we won't push the instance. If it is less than 20 then we will start pushing the instance but
+    // with less force and when the distace is 0 we will push the instance with full force
+    float t = smoothstep(30.0f, 0, dist);
     
-    //Push amount
+    // The direction of the push is from the postion of the moving objct towards the postion of the instance.
     float3 dir = normalize(basePosition.xyz - position);
-    //0.5 good
-    float3 pushAmount = dir * lerp(0, 10.0f, t); // What does this lerp work speed of the movement
+    // direction in which to push
+    // How much to push is determined by the value of t which we got from the distance
+    // if t is 0 then we don't push the instance and if t is 1 then we push the instance with full force which is 10 units. Anything between 0 and 1 is in between
+    // 0 and 10. This can be thought of as speed of the push
+    float3 pushAmount = dir * lerp(0, 10.0f, t);
+    // The new position of the instance is the original position plus the push amount
     float3 newPosition = basePosition.xyz + pushAmount;
     
-    //Pull
+    //PULL BACK THE INSTANCE TO THE ORIGINAL POSITION
     
     // ============ For faster pull ============
-    float convertDistanceFromSphereToBox = inverseLerp(100.0f, 150.0f, dist); //Indicated at what distance start pulling
-    newPosition = lerp(newPosition, originalPosition.xyz, convertDistanceFromSphereToBox);
+    // Remaps the distance so it can be used in the lerp function
+    // The pull starts when distance between the instance and the moving point is more than 0, before that we don't pull the instance
+    // When the distance is 1500 or more we pull with the full force
+    //float convertDistanceFromSphereToBox = inverseLerp(0.0f, 1500.0f, dist); 
+    // We lerp between the new position(the position at which the instance is at) and the original position as per the t value
+    // if the distance is more than 0 then we start moving the instance towards the original position and if it is 1500 or more we move the instance to the
+    // original position
+    //newPosition = lerp(newPosition, originalPosition.xyz, convertDistanceFromSphereToBox);
     //=========================================
+    
+    float newDist = distance(newPosition.xyz, originalPosition.xyz);
+    float t2 = inverseLerp(10.0f, 40.0f, newDist);
+    float3 dir2;
+    if (newDist > 0.0001f)
+        dir2 = normalize(originalPosition.xyz - newPosition.xyz);
+    else
+        dir2 = float3(0, 0, 0);
+    float3 pullAmount2 = dir2 * lerp(0, 10.0f, t2);
+    newPosition = newPosition + pullAmount2;
     
     //============ For slower pull ============
     //float newDist = distance(newPosition, originalPosition.xyz);
