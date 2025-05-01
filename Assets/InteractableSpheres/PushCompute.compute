@@ -59,24 +59,17 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     //newPosition = lerp(newPosition, originalPosition.xyz, convertDistanceFromSphereToBox);
     //=========================================
     
+    // ============ For more control pull ============
     float newDist = distance(newPosition.xyz, originalPosition.xyz); // W component = incorrect distance calculation
-    float t2 = inverseLerp(10.0f, 40.0f, newDist);
+    float t2 = smoothstep(0.0f, 150.0f, newDist); // inverseLerp makes it quit
     float3 dir2;
     if (newDist > 0.0001f)
         dir2 = normalize(originalPosition.xyz - newPosition.xyz); // When distance is 0 then the direction output is incorrect
     else
         dir2 = float3(0, 0, 0);
-    float3 pullAmount2 = dir2 * lerp(0, 10.0f, t2);
-    newPosition = newPosition + pullAmount2;
-    
-    //============ For slower pull ============
-    //float newDist = distance(newPosition, originalPosition.xyz);
-    //float remap = smoothstep(0, 20.0f, dist);
-    //float3 dirToOriginal = normalize(originalPosition.xyz - newPosition);
-    //float3 pullAmount = dirToOriginal * lerp(0, 0.1f, remap);
-    //pullAmount = (newDist > 0.1f) ? pullAmount : float3(0, 0, 0);
-    //newPosition = newPosition + pullAmount;
-    //=========================================
+    float3 pullAmount = dir2 * lerp(0, 15.0f, t2);
+    newPosition = newPosition + pullAmount;
+    // =========================================
     
 
     Result[id.x] = float4(newPosition, 1);
