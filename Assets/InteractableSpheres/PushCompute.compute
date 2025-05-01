@@ -61,13 +61,16 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     
     // ============ For more control pull ============
     float newDist = distance(newPosition.xyz, originalPosition.xyz); // W component = incorrect distance calculation
+    // Remapping the distance between the new position and the original position so it can be used in the lerp function.
+    // We start pulling when the distance is greater than 0
+    // After that the pull force increases with the distance. When the distance is 150 or more we set the value to 1
     float t2 = smoothstep(0.0f, 150.0f, newDist); // inverseLerp makes it quit
     float3 dir2;
     if (newDist > 0.0001f)
         dir2 = normalize(originalPosition.xyz - newPosition.xyz); // When distance is 0 then the direction output is incorrect
-    else
+    else // When distance is 0 calculating the direction is not possible. GPU return NAN and it messes up the whole calculation
         dir2 = float3(0, 0, 0);
-    float3 pullAmount = dir2 * lerp(0, 15.0f, t2);
+    float3 pullAmount = dir2 * lerp(0, 1.0f, t2); // Controls how strong/faster pull we want
     newPosition = newPosition + pullAmount;
     // =========================================
     
