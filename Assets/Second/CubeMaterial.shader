@@ -148,9 +148,9 @@ Shader "Unlit/CubeMaterial"
 
                 // Calculate noise based on position and time
                 float3 noiseInput = float3(
-                    startPos.x * _NoiseScale, 
-                    startPos.z * _NoiseScale, 
-                    _Time.y * _NoiseSpeed
+                    startPos.x * _NoiseScale, // Sampling noise on the basis of x position to offset y position
+                    startPos.z * _NoiseScale, // Sampling noise on the basis of z position to offset y position
+                    _Time.y * _NoiseSpeed // This helps in varying the noise
                 );
 
                 // Generate noise value between -1 and 1
