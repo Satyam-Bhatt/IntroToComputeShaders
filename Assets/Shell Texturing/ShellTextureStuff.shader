@@ -3,10 +3,13 @@ Shader "Unlit/ShellTextureStuff"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Index ("Index", Int) = 0
+        _Count ("Count", Int) = 1
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
+        Cull Off
         LOD 100
 
         Pass
@@ -43,6 +46,8 @@ Shader "Unlit/ShellTextureStuff"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            int _Index;
+			int _Count;
 
             v2f vert (appdata v)
             {
@@ -54,18 +59,21 @@ Shader "Unlit/ShellTextureStuff"
 
             float4 frag (v2f i) : SV_Target
             {
+                float height = (float)_Index/(float)_Count; // Important conversion
+
 				uint2 tid = i.uv * 100;
                 //uint seed = tid.x + 100 * tid.y + 100 * 10; // Why multiply with high number
                 uint seed = tid.x * 1000000 + tid.y ; // Why multiply with high number
 
                 float rand2 = hash(seed);
-                if(rand2 > 0.1)
+                if(rand2 > height)
 				{
 					rand2 = 1;
 				}
                 else
                 {
-                    rand2 = 0;
+                    discard;
+                    //rand2 = 0;
                 }
 
                 return rand2;
