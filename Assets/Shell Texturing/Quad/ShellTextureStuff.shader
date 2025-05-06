@@ -61,10 +61,11 @@ Shader "Unlit/ShellTextureStuff"
             {
                 float height = (float)_Index/(float)_Count; // Important conversion
 
-				uint2 tid = i.uv * 100;
+				uint2 tid = i.uv * 500;
                 //uint seed = tid.x + 100 * tid.y + 100 * 10; // Why multiply with high number
                 uint seed = tid.x * 1000000 + tid.y ; // Why multiply with high number
 
+                float4 outColor = float4(0,1,0,1);
                 float rand2 = hash(seed);
                 if(rand2 > height)
 				{
@@ -73,26 +74,29 @@ Shader "Unlit/ShellTextureStuff"
                 else
                 {
                     discard;
-                    //rand2 = 0;
+                    outColor = float4(0,0,0,1);
+                    rand2 = 0;
                 }
 
-                return rand2;
+                return outColor * height;
 
                 // MY TECHNIQUE
                 float2 myUV = i.uv * 100;
                 myUV = floor(myUV);
                 float myRand = random(myUV);
                 
-                if(myRand > 0.1)
+                if(myRand > height)
 				{
 					myRand = 1;
 				}
 				else
 				{
-					myRand = 0;
+                    discard;
+					//myRand = 0;
 				}
 
-                return myRand;
+                return float4(0,1,0,1);
+
             }
             ENDCG
         }
