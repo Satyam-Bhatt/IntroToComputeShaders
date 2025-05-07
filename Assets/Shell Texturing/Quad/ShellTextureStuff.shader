@@ -63,7 +63,7 @@ Shader "Unlit/ShellTextureStuff"
 
 				uint2 tid = i.uv * 500;
                 //uint seed = tid.x + 100 * tid.y + 100 * 10; // Why multiply with high number
-                uint seed = tid.x * 1000000 + tid.y ; // Why multiply with high number
+                uint seed = tid.x * 1000000 + tid.y ; // Why multiply with high number. The number we multiply with tid.x should be more than 500 so that the pattern does not repeat
 
                 float4 outColor = float4(0,1,0,1);
                 float rand2 = hash(seed);

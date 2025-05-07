@@ -273,6 +273,7 @@ GameObject:
   - component: {fileID: 1798563912}
   - component: {fileID: 1798563911}
   - component: {fileID: 1798563910}
+  - component: {fileID: 1798563914}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -321,7 +322,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f2cfcfb0a9d1b6049865ccc5e3f3054a, type: 2}
+  - {fileID: 2100000, guid: a05915b55edc0c4499a7e79e34878e1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -366,6 +367,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1798563914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1798563909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5698d0c189a05645afb8e6dc0db5117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshToDuplicate: {fileID: 0}
+  numShells: 16
+  heightStep: 0.1
 --- !u!1001 &1851149873
 PrefabInstance:
   m_ObjectHideFlags: 0
