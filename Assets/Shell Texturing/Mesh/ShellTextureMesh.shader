@@ -20,11 +20,13 @@ Shader "Unlit/ShellTextureMesh"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float3 normals : NORMAL;
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
+                float3 normal : TEXCOORD1;
                 float4 vertex : SV_POSITION;
             };
 
@@ -41,6 +43,9 @@ Shader "Unlit/ShellTextureMesh"
             v2f vert (appdata v)
             {
                 v2f o;
+
+                v.vertex.xyz = v.vertex.xyz + v.normals * 0.1;
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
