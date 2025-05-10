@@ -62,20 +62,28 @@ Shader "Unlit/ShellTextureStuff"
                 float height = (float)_Index/(float)_Count; // Important conversion
 
 				uint2 tid = i.uv * 500;
+                float2 fracUV = frac(i.uv * 500) * 2 - 1; // Center the uv
+                float dist = length(fracUV); // Distance from center to get a circle
                 //uint seed = tid.x + 100 * tid.y + 100 * 10; // Why multiply with high number
                 uint seed = tid.x * 1000000 + tid.y ; // Why multiply with high number. The number we multiply with tid.x should be more than 500 so that the pattern does not repeat
 
                 float4 outColor = float4(0,1,0,1);
                 float rand2 = hash(seed);
-                if(rand2 > height)
-				{
-					rand2 = 1;
-				}
-                else
+    //             if(rand2 > height && dist < 0.7f) // Thickness check to make the circle big or small
+				// {
+				// 	rand2 = 1;
+				// }
+    //             else
+    //             {
+    //                 discard;
+    //                 //outColor = float4(0,0,0,1);
+    //                 //rand2 = 0;
+    //             }
+
+                // Make the grass pointy as the hight increases the rand2 - height value goes down and so goes down the thickness
+                if(dist > 1 * (rand2 - height)) 
                 {
                     discard;
-                    //outColor = float4(0,0,0,1);
-                    //rand2 = 0;
                 }
 
                 return outColor * height;

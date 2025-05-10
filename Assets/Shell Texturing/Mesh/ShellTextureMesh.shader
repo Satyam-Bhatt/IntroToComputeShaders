@@ -9,6 +9,7 @@ Shader "Unlit/ShellTextureMesh"
     SubShader
     {
         Tags { "RenderType"="Opaque" }
+        Cull Off
 
         Pass
         {
@@ -43,12 +44,16 @@ Shader "Unlit/ShellTextureMesh"
             float4 _MainTex_ST;
             int _Index;
             int _Count;
+            float _HeightUp;
 
             v2f vert (appdata v)
             {
                 v2f o;
 
                 float height = (float)_Index/(float)_Count; // Important conversion
+                // The lower height value is very small but the higher height value is very large. Look at the x^a graph in desmos
+                // This adds volume to the strands when Index is low and the strands are a bit farther when the height is approaching 1
+                height = pow (height, 0.3); 
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
@@ -61,17 +66,27 @@ Shader "Unlit/ShellTextureMesh"
             {
                 float height = (float)_Index/(float)_Count; // Important conversion
 
-                uint2 tid = i.uv * 100;
-                uint seed = tid.x * 1031 + tid.y;
+                uint2 tid = i.uv * 1500;
+                float2 fracUV = frac(i.uv * 1500) * 2 - 1;
+                float dist = length(fracUV);
+                uint seed = tid.x * 100031 + tid.y;
 
                 float4 outCol = float4(0,1,0,1);
                 float rand = hash(seed);
 
-                if(rand < height)
-                {
-                    discard;
-                    //outCol = float4(0,0,0,0);
-                }
+                // Gives square shape
+                // if(rand < height)
+                // {
+                //     discard;
+                //     //outCol = float4(0,0,0,0);
+                // }
+
+                // For the strands to look pointy
+                if(dist > 1 * (rand - height))
+				{
+					discard;
+					//outCol = float4(0,0,0,0);
+				}
 
 				return outCol * height;
 
