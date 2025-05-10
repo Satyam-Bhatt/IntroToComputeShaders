@@ -3,6 +3,8 @@ Shader "Unlit/ShellTextureMesh"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Index ("Index", Int) = 0
+        _Count ("Count", Int) = 1
     }
     SubShader
     {
@@ -39,12 +41,16 @@ Shader "Unlit/ShellTextureMesh"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            int _Index;
+            int _Count;
 
             v2f vert (appdata v)
             {
                 v2f o;
 
-                v.vertex.xyz = v.vertex.xyz + v.normals * 0.1;
+                float height = (float)_Index/(float)_Count; // Important conversion
+
+                v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
@@ -53,18 +59,21 @@ Shader "Unlit/ShellTextureMesh"
 
             float4 frag (v2f i) : SV_Target
             {
+                float height = (float)_Index/(float)_Count; // Important conversion
+
                 uint2 tid = i.uv * 100;
                 uint seed = tid.x * 1031 + tid.y;
 
                 float4 outCol = float4(0,1,0,1);
                 float rand = hash(seed);
 
-                if(rand < 0.2)
+                if(rand < height)
                 {
-                    outCol = float4(0,0,0,0);
+                    discard;
+                    //outCol = float4(0,0,0,0);
                 }
 
-				return outCol;
+				return outCol * height;
 
             }
             ENDCG

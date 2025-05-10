@@ -74,8 +74,8 @@ Shader "Unlit/ShellTextureStuff"
                 else
                 {
                     discard;
-                    outColor = float4(0,0,0,1);
-                    rand2 = 0;
+                    //outColor = float4(0,0,0,1);
+                    //rand2 = 0;
                 }
 
                 return outColor * height;
