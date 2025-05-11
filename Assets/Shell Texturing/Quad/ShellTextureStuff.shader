@@ -69,6 +69,7 @@ Shader "Unlit/ShellTextureStuff"
 
                 float4 outColor = float4(0,1,0,1);
                 float rand2 = hash(seed);
+
     //             if(rand2 > height && dist < 0.7f) // Thickness check to make the circle big or small
 				// {
 				// 	rand2 = 1;

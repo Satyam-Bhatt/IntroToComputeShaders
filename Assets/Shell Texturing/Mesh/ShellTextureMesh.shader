@@ -17,6 +17,8 @@ Shader "Unlit/ShellTextureMesh"
             #pragma vertex vert
             #pragma fragment frag
 
+            #include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
             #include "UnityCG.cginc"
 
             struct appdata
@@ -51,9 +53,11 @@ Shader "Unlit/ShellTextureMesh"
                 v2f o;
 
                 float height = (float)_Index/(float)_Count; // Important conversion
-                // The lower height value is very small but the higher height value is very large. Look at the x^a graph in desmos
-                // This adds volume to the strands when Index is low and the strands are a bit farther when the height is approaching 1
-                height = pow (height, 0.3); 
+                // Look at the x^a graph in desmos
+                // At the start when the value is very very low we increase the height and then we flatten the curve. 
+                // This ensures that when the culling of pixels is higher(when height increases) the spheres are closer so that they look dense
+                // This adds volume to the strands when Index is high and the strands are a closer when the height increases
+                height = pow (height, 0.1); 
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
@@ -66,8 +70,8 @@ Shader "Unlit/ShellTextureMesh"
             {
                 float height = (float)_Index/(float)_Count; // Important conversion
 
-                uint2 tid = i.uv * 1500;
-                float2 fracUV = frac(i.uv * 1500) * 2 - 1;
+                uint2 tid = i.uv * 500;
+                float2 fracUV = frac(i.uv * 500) * 2 - 1;
                 float dist = length(fracUV);
                 uint seed = tid.x * 100031 + tid.y;
 
@@ -88,7 +92,19 @@ Shader "Unlit/ShellTextureMesh"
 					//outCol = float4(0,0,0,0);
 				}
 
-				return outCol * height;
+                // Light
+                float light = DotClamped(i.normal, _WorldSpaceLightPos0)  * 0.5f + 0.5f;
+                light = pow(light, 1);
+
+                float ambientOcclusion = pow(height, 1.3);
+
+				//ambientOcclusion += _OcclusionBias;
+
+				ambientOcclusion = saturate(ambientOcclusion);
+
+				return outCol * ambientOcclusion * light;
+				//return outCol * height * light;
+
 
             }
             ENDCG
