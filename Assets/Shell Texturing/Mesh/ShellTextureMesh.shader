@@ -57,11 +57,16 @@ Shader "Unlit/ShellTextureMesh"
                 // At the start when the value is very very low we increase the height and then we flatten the curve. 
                 // This ensures that when the culling of pixels is higher(when height increases) the spheres are closer so that they look dense
                 // This adds volume to the strands when Index is high and the strands are a closer when the height increases
-                height = pow (height, 0.1); 
+                height = pow (height, 0.4); 
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
+
+                // Since we are preparing to send data over to the fragment shader, we finalize the normal by converting it to world space
+				// and it will be interpolated across triangles in the fragment shader, you kinda don't really need to worry about this since it just works (tm)
+                o.normal = normalize(UnityObjectToWorldNormal(v.normals));
+
                 o.uv = v.uv;
                 return o;
             }
@@ -86,23 +91,28 @@ Shader "Unlit/ShellTextureMesh"
                 // }
 
                 // For the strands to look pointy
-                if(dist > 1 * (rand - height))
+                if(dist > 4 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
 				}
 
                 // Light
-                float light = DotClamped(i.normal, _WorldSpaceLightPos0)  * 0.5f + 0.5f;
-                light = pow(light, 1);
+                float light = DotClamped(i.normal.xyz, _WorldSpaceLightPos0.xyz)  * 0.5f + 0.5f;
+                light = pow(light, 8);
 
-                float ambientOcclusion = pow(height, 1.3);
+                float ambientOcclusion = pow(height, 1);
 
-				//ambientOcclusion += _OcclusionBias;
+				ambientOcclusion += 0.1;
 
 				ambientOcclusion = saturate(ambientOcclusion);
 
-				return outCol * ambientOcclusion * light;
+                // For fur look
+				return float4( light * outCol.xyz ,1);
+
+                // For different Light and thorny look
+				return float4( light * outCol.xyz * ambientOcclusion ,1);
+
 				//return outCol * height * light;
 
 

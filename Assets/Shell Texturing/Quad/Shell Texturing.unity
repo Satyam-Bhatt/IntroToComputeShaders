@@ -336,7 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6088462721043649524, guid: f7342acaa0356e34286c6e3ccc33e548, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8842759503583838367, guid: f7342acaa0356e34286c6e3ccc33e548, type: 3}
       propertyPath: m_LocalScale.x
@@ -544,7 +544,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshToDuplicate: {fileID: 7001845236056006707, guid: b4ca21bb6949a9643aa58a9fad884e1c, type: 3}
   numShells: 256
-  heightStep: 0.05
+  heightStep: 0.1
 --- !u!4 &2051336734
 Transform:
   m_ObjectHideFlags: 0
