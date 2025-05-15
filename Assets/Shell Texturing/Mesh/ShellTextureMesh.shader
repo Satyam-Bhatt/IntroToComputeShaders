@@ -61,6 +61,8 @@ Shader "Unlit/ShellTextureMesh"
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
+                v.vertex.xyz = v.vertex.xyz + float3(0,-1,0) * 0.7 * height;
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
                 // Since we are preparing to send data over to the fragment shader, we finalize the normal by converting it to world space
@@ -91,7 +93,7 @@ Shader "Unlit/ShellTextureMesh"
                 // }
 
                 // For the strands to look pointy
-                if(dist > 100 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
+                if(dist > 4 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
@@ -99,7 +101,7 @@ Shader "Unlit/ShellTextureMesh"
 
                 // Light
                 float light = DotClamped(i.normal.xyz, _WorldSpaceLightPos0.xyz)  * 0.5f + 0.5f;
-                light = pow(light, 2);
+                light = pow(light, 4);
 
                 float ambientOcclusion = pow(height, 1);
 

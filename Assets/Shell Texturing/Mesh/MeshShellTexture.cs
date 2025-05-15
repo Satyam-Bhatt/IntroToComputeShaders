@@ -7,6 +7,9 @@ public class MeshShellTexture : MonoBehaviour
     public GameObject meshToDuplicate;
     public int numShells = 16;
     public float heightStep = 0.1f;
+    public float speed = 10f;
+
+    private Vector3 direction;
 
     private void Start()
     {
@@ -20,5 +23,31 @@ public class MeshShellTexture : MonoBehaviour
             newMat.SetInt("_Count", numShells);
             newMesh.GetComponent<MeshRenderer>().material = newMat;
         }
+    }
+
+    private void Update()
+    {
+        if(Input.GetKey(KeyCode.UpArrow))
+        {
+            direction = new Vector3(0, 1 * speed * Time.deltaTime, 0);
+            transform.Translate(0,1 * speed * Time.deltaTime,0);
+        }
+        else if(Input.GetKey(KeyCode.DownArrow))
+        {
+            direction = new Vector3(0, -1 * speed * Time.deltaTime, 0);
+            transform.Translate(0,-1 * speed * Time.deltaTime,0);
+        }
+        else if(Input.GetKey(KeyCode.LeftArrow))
+        {
+            direction = new Vector3(-1 * speed * Time.deltaTime,0,0);
+            transform.Translate(-1 * speed * Time.deltaTime,0,0);
+        }
+        else if(Input.GetKey(KeyCode.RightArrow))
+        {
+            direction = new Vector3(1 * speed * Time.deltaTime,0,0);
+            transform.Translate(1 * speed * Time.deltaTime,0,0);
+        }
+
+        direction.Normalize();
     }
 }
