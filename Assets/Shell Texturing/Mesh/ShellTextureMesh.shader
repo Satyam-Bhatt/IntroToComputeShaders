@@ -91,7 +91,7 @@ Shader "Unlit/ShellTextureMesh"
                 // }
 
                 // For the strands to look pointy
-                if(dist > 4 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
+                if(dist > 100 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
@@ -99,7 +99,7 @@ Shader "Unlit/ShellTextureMesh"
 
                 // Light
                 float light = DotClamped(i.normal.xyz, _WorldSpaceLightPos0.xyz)  * 0.5f + 0.5f;
-                light = pow(light, 8);
+                light = pow(light, 2);
 
                 float ambientOcclusion = pow(height, 1);
 
