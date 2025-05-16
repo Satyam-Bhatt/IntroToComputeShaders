@@ -47,6 +47,7 @@ Shader "Unlit/ShellTextureMesh"
             int _Index;
             int _Count;
             float _HeightUp;
+            float3 _Displacement;
 
             v2f vert (appdata v)
             {
@@ -61,7 +62,8 @@ Shader "Unlit/ShellTextureMesh"
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
-                v.vertex.xyz = v.vertex.xyz + float3(0,-1,0) * 0.7 * height;
+                float curve = pow(height, 1);
+                v.vertex.xyz = v.vertex.xyz + float3(0,-1,0) * 0.7 * curve;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
@@ -110,7 +112,7 @@ Shader "Unlit/ShellTextureMesh"
 				ambientOcclusion = saturate(ambientOcclusion);
 
                 // For fur look
-				return float4( light * outCol.xyz ,1);
+				//return float4( light * outCol.xyz ,1);
 
                 // For different Light and thorny look
 				return float4( light * outCol.xyz * ambientOcclusion ,1);
