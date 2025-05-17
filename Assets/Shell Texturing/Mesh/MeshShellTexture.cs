@@ -10,7 +10,7 @@ public class MeshShellTexture : MonoBehaviour
     public float speed = 10f;
 
     private Vector3 direction;
-    private Vector3 displacementDirection;
+    public Vector3 displacementDirection;
     [SerializeField] private Material papaMaterial;
 
     private void Start()
@@ -49,13 +49,17 @@ public class MeshShellTexture : MonoBehaviour
             direction = new Vector3(1 * speed * Time.deltaTime,0,0);
             transform.Translate(1 * speed * Time.deltaTime,0,0);
         }
+        else
+        {
+            direction = Vector3.zero;
+        }
 
         direction.Normalize();
         
         // Hair displacement
         displacementDirection -= direction * speed * Time.deltaTime;
         if(direction == Vector3.zero) 
-            displacementDirection.y -= speed * Time.deltaTime;
+            displacementDirection.y -= 0.8f * speed * Time.deltaTime;
 
         if (displacementDirection.magnitude > 1) displacementDirection.Normalize();
 

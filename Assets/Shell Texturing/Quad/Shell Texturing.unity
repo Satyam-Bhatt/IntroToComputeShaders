@@ -545,7 +545,8 @@ MonoBehaviour:
   meshToDuplicate: {fileID: 7001845236056006707, guid: b4ca21bb6949a9643aa58a9fad884e1c, type: 3}
   numShells: 256
   heightStep: 0.1
-  speed: 2
+  speed: 5
+  displacementDirection: {x: 0, y: 0, z: 0}
   papaMaterial: {fileID: 2100000, guid: a05915b55edc0c4499a7e79e34878e1d, type: 2}
 --- !u!4 &2051336734
 Transform:

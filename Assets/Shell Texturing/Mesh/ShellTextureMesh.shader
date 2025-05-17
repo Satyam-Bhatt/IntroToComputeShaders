@@ -58,12 +58,12 @@ Shader "Unlit/ShellTextureMesh"
                 // At the start when the value is very very low we increase the height and then we flatten the curve. 
                 // This ensures that when the culling of pixels is higher(when height increases) the spheres are closer so that they look dense
                 // This adds volume to the strands when Index is high and the strands are a closer when the height increases
-                height = pow (height, 0.4); 
+                height = pow (height, 0.6); 
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
                 float curve = pow(height, 1);
-                v.vertex.xyz = v.vertex.xyz + float3(0,-1,0) * 0.7 * curve;
+                v.vertex.xyz = v.vertex.xyz + _Displacement * 0.7 * curve;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
@@ -95,7 +95,7 @@ Shader "Unlit/ShellTextureMesh"
                 // }
 
                 // For the strands to look pointy
-                if(dist > 4 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
+                if(dist > 10 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
@@ -112,7 +112,7 @@ Shader "Unlit/ShellTextureMesh"
 				ambientOcclusion = saturate(ambientOcclusion);
 
                 // For fur look
-				//return float4( light * outCol.xyz ,1);
+				return float4( light * outCol.xyz ,1);
 
                 // For different Light and thorny look
 				return float4( light * outCol.xyz * ambientOcclusion ,1);
