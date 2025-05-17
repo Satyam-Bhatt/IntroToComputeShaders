@@ -84,7 +84,7 @@ Shader "Unlit/ShellTextureMesh"
                 float dist = length(fracUV);
                 uint seed = tid.x * 100031 + tid.y;
 
-                float4 outCol = float4(0,1,0,1);
+                float4 outCol = float4(0.1,0.1,0.1,1);
                 float rand = hash(seed);
 
                 // Gives square shape
@@ -112,7 +112,7 @@ Shader "Unlit/ShellTextureMesh"
 				ambientOcclusion = saturate(ambientOcclusion);
 
                 // For fur look
-				return float4( light * outCol.xyz ,1);
+				//return float4( light * outCol.xyz ,1);
 
                 // For different Light and thorny look
 				return float4( light * outCol.xyz * ambientOcclusion ,1);
