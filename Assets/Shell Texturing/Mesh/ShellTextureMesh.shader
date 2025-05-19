@@ -42,6 +42,11 @@ Shader "Unlit/ShellTextureMesh"
 				return float(n & uint(0x7fffffffU)) / float(0x7fffffff);
 			}
 
+            float random (float2 uv)
+            {
+                return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123);
+            }
+
             sampler2D _MainTex;
             float4 _MainTex_ST;
             int _Index;
@@ -77,15 +82,26 @@ Shader "Unlit/ShellTextureMesh"
 
             float4 frag (v2f i) : SV_Target
             {
-                float height = (float)_Index/(float)_Count; // Important conversion
+                float height = (float)_Index/(float)_Count; // Important conversion 
 
-                uint2 tid = i.uv * 500;
-                float2 fracUV = frac(i.uv * 500) * 2 - 1;
-                float dist = length(fracUV);
+                // This defines how big each Square is in the mesh. More the number we multiply there will be more squares hence more strands
+                // but thinner strands in the same surface area. 
+                uint2 tid = i.uv * 1000; 
+                // Multiplication value should be same as the above one 
+                float2 fracUV = frac(i.uv * 1000) * 2 - 1;
+                float dist = length(fracUV); // Makes the strands circular
                 uint seed = tid.x * 100031 + tid.y;
 
                 float4 outCol = float4(0.1,0.1,0.1,1);
+
+                // My Technique
+                float2 myUV = i.uv * 500;
+                myUV = floor(myUV);
+                float myRand = random(myUV);
+                //////
+
                 float rand = hash(seed);
+                //rand = myRand;
 
                 // Gives square shape
                 // if(rand < height)
