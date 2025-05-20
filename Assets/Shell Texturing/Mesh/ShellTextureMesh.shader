@@ -45,6 +45,11 @@ Shader "Unlit/ShellTextureMesh"
             float random (float2 uv)
             {
                 return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123);
+
+
+                // If you want the strands to vary in size in realtime
+                // return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123 * _Time.y * 0.00001); 
+
             }
 
             sampler2D _MainTex;
@@ -94,14 +99,14 @@ Shader "Unlit/ShellTextureMesh"
 
                 float4 outCol = float4(0.1,0.1,0.1,1);
 
-                // My Technique
-                float2 myUV = i.uv * 500;
+                // My Technique. Use it to have strands that increase in decrease in length by multiplying with time in the random function
+                float2 myUV = i.uv * 1000;
                 myUV = floor(myUV);
-                float myRand = random(myUV);
+                float myRand = random(myUV);// + _Time.y * 0.0005); // Or add this to change the length of strand
                 //////
 
                 float rand = hash(seed);
-                //rand = myRand;
+                rand = myRand;
 
                 // Gives square shape
                 // if(rand < height)
