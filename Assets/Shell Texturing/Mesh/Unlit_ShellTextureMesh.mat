@@ -30,8 +30,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Count: 1
+    - _Density: 1000
     - _HeightUp: 1
-    - _Index: 0
+    - _Index: 1.17
+    - _StrandCurve: 1
+    - _StrandDensity: 0.6
+    - _Thickness: 4.47
     m_Colors:
     - _Displacement: {r: -0.99886036, g: -5.61, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -5,6 +5,9 @@ Shader "Unlit/ShellTextureMesh"
         _MainTex ("Texture", 2D) = "white" {}
         _Index ("Index", Int) = 0
         _Count ("Count", Int) = 1
+        _Thickness ("Thickness", Float) = 10.0
+        _StrandDensity ("StrandDensity", Float) = 0.6
+		_StrandCurve ("StrandCurve", Float) = 1.0
     }
     SubShader
     {
@@ -56,23 +59,27 @@ Shader "Unlit/ShellTextureMesh"
             float4 _MainTex_ST;
             int _Index;
             int _Count;
-            float _HeightUp;
             float3 _Displacement;
+
+            float _StrandDensity;
+            float _StrandCurve;
+            float _Thickness = 10.0;
+            float _Density = 1000;
 
             v2f vert (appdata v)
             {
                 v2f o;
 
                 float height = (float)_Index/(float)_Count; // Important conversion
-                // Look at the x^a graph in desmos
+                // Look at the x^a (a is greater than 0 and less than 1) graph in desmos 
                 // At the start when the value is very very low we increase the height and then we flatten the curve. 
                 // This ensures that when the culling of pixels is higher(when height increases) the spheres are closer so that they look dense
                 // This adds volume to the strands when Index is high and the strands are a closer when the height increases
-                height = pow (height, 0.6); 
+                height = pow (height, _StrandDensity); 
 
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
-                float curve = pow(height, 1);
+                float curve = pow(height, _StrandCurve);
                 v.vertex.xyz = v.vertex.xyz + _Displacement * 0.7 * curve;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -91,11 +98,12 @@ Shader "Unlit/ShellTextureMesh"
 
                 // This defines how big each Square is in the mesh. More the number we multiply there will be more squares hence more strands
                 // but thinner strands in the same surface area. 
-                uint2 tid = i.uv * 1000; 
+                uint2 tid = i.uv * _Density;
                 // Multiplication value should be same as the above one 
-                float2 fracUV = frac(i.uv * 1000) * 2 - 1;
+                float2 fracUV = frac(i.uv * _Density) * 2 - 1;
                 float dist = length(fracUV); // Makes the strands circular
-                uint seed = tid.x * 100031 + tid.y;
+                uint randomisationValue = _Density * 10; // This should be greater than the density so the pattern doesn't repeat
+                uint seed = tid.x * randomisationValue + tid.y;
 
                 float4 outCol = float4(0.1,0.1,0.1,1);
 
@@ -116,7 +124,7 @@ Shader "Unlit/ShellTextureMesh"
                 // }
 
                 // For the strands to look pointy
-                if(dist > 10 * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
+                if(dist > _Thickness * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
