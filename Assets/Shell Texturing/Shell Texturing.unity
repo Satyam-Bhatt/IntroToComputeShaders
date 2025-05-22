@@ -543,11 +543,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshToDuplicate: {fileID: 7001845236056006707, guid: b4ca21bb6949a9643aa58a9fad884e1c, type: 3}
-  numShells: 256
-  heightStep: 0.1
-  speed: 5
   displacementDirection: {x: 0, y: 0, z: 0}
   papaMaterial: {fileID: 2100000, guid: a05915b55edc0c4499a7e79e34878e1d, type: 2}
+  shells: []
+  numShells: 256
+  speed: 5
+  _StrandDensity: 0.6
+  _StrandCurve: 1
+  _Thickness: 10
+  _Density: 1000
+  _LightPower: 4
+  _AmbientOcclusionPower: 1
+  _AmbientOcclusionUplift: 0.1
+  _AmbientOcclusion: 1
+  _Color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
 --- !u!4 &2051336734
 Transform:
   m_ObjectHideFlags: 0

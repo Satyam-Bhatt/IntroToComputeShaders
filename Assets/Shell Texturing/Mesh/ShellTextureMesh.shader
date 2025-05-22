@@ -57,14 +57,19 @@ Shader "Unlit/ShellTextureMesh"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            int _Index;
-            int _Count;
             float3 _Displacement;
 
+            int _Index;
+            int _Count;
             float _StrandDensity;
             float _StrandCurve;
             float _Thickness = 10.0;
             float _Density = 1000;
+            float _LightPower = 4.0;
+            float _AmbientOcclusionPower = 1.0;
+            float _AmbientOcclusionUplift = 0.1;
+            bool _AmbientOcclusion = true;
+            float4 _Color = float4(0.1, 0.1, 0.1, 1.0);
 
             v2f vert (appdata v)
             {
@@ -102,10 +107,10 @@ Shader "Unlit/ShellTextureMesh"
                 // Multiplication value should be same as the above one 
                 float2 fracUV = frac(i.uv * _Density) * 2 - 1;
                 float dist = length(fracUV); // Makes the strands circular
-                uint randomisationValue = _Density * 10; // This should be greater than the density so the pattern doesn't repeat
+                uint randomisationValue = _Density * 10 + 10; // This should be greater than the density so the pattern doesn't repeat
                 uint seed = tid.x * randomisationValue + tid.y;
 
-                float4 outCol = float4(0.1,0.1,0.1,1);
+                float4 outCol = _Color;
 
                 // My Technique. Use it to have strands that increase in decrease in length by multiplying with time in the random function
                 float2 myUV = i.uv * 1000;
@@ -132,19 +137,20 @@ Shader "Unlit/ShellTextureMesh"
 
                 // Light
                 float light = DotClamped(i.normal.xyz, _WorldSpaceLightPos0.xyz)  * 0.5f + 0.5f;
-                light = pow(light, 4);
+                light = pow(light, _LightPower);
 
-                float ambientOcclusion = pow(height, 1);
+                float ambientOcclusion = pow(height, _AmbientOcclusionPower);
 
-				ambientOcclusion += 0.1;
+				ambientOcclusion += _AmbientOcclusionUplift;
 
 				ambientOcclusion = saturate(ambientOcclusion);
 
-                // For fur look
-				//return float4( light * outCol.xyz ,1);
-
-                // For different Light and thorny look
-				return float4( light * outCol.xyz * ambientOcclusion ,1);
+                if(!_AmbientOcclusion)
+                    // For fur look
+				    return float4( light * outCol.xyz ,1);
+                else
+                    // For different Light and thorny look
+				    return float4( light * outCol.xyz * ambientOcclusion ,1);
 
 				//return outCol * height * light;
 
