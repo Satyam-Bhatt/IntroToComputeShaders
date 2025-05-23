@@ -48,8 +48,6 @@ Shader "Unlit/ShellTextureMesh"
             float random (float2 uv)
             {
                 return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123);
-
-
                 // If you want the strands to vary in size in realtime
                 // return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123 * _Time.y * 0.00001); 
 
@@ -75,6 +73,7 @@ Shader "Unlit/ShellTextureMesh"
             {
                 v2f o;
 
+                // Gives a value between 0 and 1 depending on the index and count. Height increases as the _Index increases
                 float height = (float)_Index/(float)_Count; // Important conversion
                 // Look at the x^a (a is greater than 0 and less than 1) graph in desmos 
                 // At the start when the value is very very low we increase the height and then we flatten the curve. 
@@ -82,15 +81,20 @@ Shader "Unlit/ShellTextureMesh"
                 // This adds volume to the strands when Index is high and the strands are a closer when the height increases
                 height = pow (height, _StrandDensity); 
 
+                // As eash mesh is at the same origin to increase the size of each mesh we extrude the vertices along the normals with as much
+                // height as we calculated above. This layers the mesh one over the other so that we can use it to create the strands by culling
+                // pixels as the mesh is extruded
                 v.vertex.xyz = v.vertex.xyz + v.normals * height;
 
+                // As the height increases the hair droops in a particular direction. This code just prevents the hair at the start to droop
                 float curve = pow(height, _StrandCurve);
+                // moves the vertices of the mesh in that direction
                 v.vertex.xyz = v.vertex.xyz + _Displacement * 0.7 * curve;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
                 // Since we are preparing to send data over to the fragment shader, we finalize the normal by converting it to world space
-				// and it will be interpolated across triangles in the fragment shader, you kinda don't really need to worry about this since it just works (tm)
+				// and it will be interpolated across triangles in the fragment shader. We use this normal to calculate the Light and shadows
                 o.normal = normalize(UnityObjectToWorldNormal(v.normals));
 
                 o.uv = v.uv;
@@ -99,17 +103,24 @@ Shader "Unlit/ShellTextureMesh"
 
             float4 frag (v2f i) : SV_Target
             {
-                float height = (float)_Index/(float)_Count; // Important conversion 
+                // Gives a value between 0 and 1 depending on the index and count. Height increases as the _Index increases
+                float height = (float)_Index/(float)_Count;
 
                 // This defines how big each Square is in the mesh. More the number we multiply there will be more squares hence more strands
                 // but thinner strands in the same surface area. 
                 uint2 tid = i.uv * _Density;
-                // Multiplication value should be same as the above one 
+                // This creates a lot of small UV squares inside the mesh. *2 - 1 just muves the 0,0 point of the UC to the center
+                // Density should be same as the above one
                 float2 fracUV = frac(i.uv * _Density) * 2 - 1;
+                // This creates a circle shape with a gradient ranging from 0 at the center and 1 at the edges
                 float dist = length(fracUV); // Makes the strands circular
                 uint randomisationValue = _Density * 10 + 10; // This should be greater than the density so the pattern doesn't repeat
+                // seed uses the uv coordinate to generate numbers that range between 0 to 1. This ensures that the caluse is mostly 
+                // different for different UV coordinate
+                // if the randomisationValue is smaller than tid.x or tid.y then the pattern will repeat
                 uint seed = tid.x * randomisationValue + tid.y;
 
+                // Color of the fur
                 float4 outCol = _Color;
 
                 // My Technique. Use it to have strands that increase in decrease in length by multiplying with time in the random function
@@ -118,6 +129,9 @@ Shader "Unlit/ShellTextureMesh"
                 float myRand = random(myUV);// + _Time.y * 0.0005); // Or add this to change the length of strand
                 //////
 
+                // When we feed the seed value in the hash function, it returns a value between 0 and 1
+                // this value is different for different seed value. It generates squares in big UV and each square has different color.
+                // We can also use some other ways to achive the same as I did above.
                 float rand = hash(seed);
                 rand = myRand;
 
