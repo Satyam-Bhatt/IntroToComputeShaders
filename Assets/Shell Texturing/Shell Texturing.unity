@@ -291,7 +291,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1575335464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306,7 +306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   planeToInstantiate: {fileID: 6088462721043649524, guid: f7342acaa0356e34286c6e3ccc33e548, type: 3}
   numShells: 128
-  heightStep: 0.0001
+  heightStep: 0.001
 --- !u!4 &1575335465
 Transform:
   m_ObjectHideFlags: 0

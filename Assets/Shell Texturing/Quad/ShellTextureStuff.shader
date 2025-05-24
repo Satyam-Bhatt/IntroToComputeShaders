@@ -82,7 +82,7 @@ Shader "Unlit/ShellTextureStuff"
     //             }
 
                 // Make the grass pointy as the hight increases the rand2 - height value goes down and so goes down the thickness
-                if(dist > 1 * (rand2 - height)) 
+                if(dist > 1 * (rand2 - height) && _Index > 0)
                 {
                     discard;
                 }
