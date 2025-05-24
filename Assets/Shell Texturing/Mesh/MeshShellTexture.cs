@@ -29,6 +29,7 @@ public class MeshShellTexture : MonoBehaviour
  
     private void Start()
     {
+        // Set new materals for each mesh with index count increasing as the shells are added
         Material originalMat = meshToDuplicate.GetComponent<MeshRenderer>().sharedMaterial;
         for(int i = 0; i < numShells; i++)
         {
@@ -72,14 +73,19 @@ public class MeshShellTexture : MonoBehaviour
         direction.Normalize();
         
         // Hair displacement
+        // Move the displacement vector towards the opposite direction of movement
         displacementDirection -= direction * speed * Time.deltaTime;
+        // If there is no input, move the displacement vector down slowly
         if(direction == Vector3.zero) 
             displacementDirection.y -= 0.8f * speed * Time.deltaTime;
 
+        // Normalize
         if (displacementDirection.magnitude > 1) displacementDirection.Normalize();
 
+        // This set the displacement vector in the shader. It is a global variable so all shaders share it
         Shader.SetGlobalVector("_Displacement", displacementDirection);
 
+        // Updating the shell values updates the shader
         if(numShells > shells.Count)
         {
             for(int i = 0; i < numShells - shells.Count; i++)
@@ -102,6 +108,7 @@ public class MeshShellTexture : MonoBehaviour
             }
         }
 
+        // Set each shell's parameters in shader
         foreach(GameObject shell in shells)
         {
             Material mat = shell.GetComponent<MeshRenderer>().material;

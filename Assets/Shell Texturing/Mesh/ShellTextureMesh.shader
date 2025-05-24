@@ -142,19 +142,43 @@ Shader "Unlit/ShellTextureMesh"
                 //     //outCol = float4(0,0,0,0);
                 // }
 
-                // For the strands to look pointy
-                if(dist > _Thickness * (rand - height) && _Index > 0) // Thickness is here also ensures no pixels are discarded in the first mesh
+                // For the strands to look pointy as the height increases
+                // dist has values of distance from the center and creates a circle.
+                // _Thickness we have defined above
+                // We multiply it with (rand - height) so that the strands get thinner as the height increases
+                // rand is a random value between 0 and 1
+                // height is a value between 0 and 1 but increases as the _Index(no. of mesh) increases
+                // We should keep in mind that rand is similar for all the meshes
+
+                // so when height is less than rand then (rand - Height) gives a positive value and when multiplied by thickness it gives a 
+                // larger value so the strands are thicker
+                // but when the heigh is close to rand then (rand - height) gives a smaller value hence decreasing the 
+                // value of thickeness * (rand - height). Hence the strands are thinner because dist has 0 at the center and 1 at the edges
+                // when the heigh is more than rand then the value is negative. Multiplying negative value with _Thickness gives a negative
+                // value. All dist values are between 0 and 1 so that entire pixel is discarded
+
+                //_Index > 0 ensures that no pixels are discarded in the first mesh. This helps us avoid that hollow look
+                if(dist > 10 *  (rand - height) && _Index > 0)
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
 				}
 
                 // Light
+                // Dot product of normal and light for shadows
+                // We multiply and add 0.5 to make shadows lighter
                 float light = DotClamped(i.normal.xyz, _WorldSpaceLightPos0.xyz)  * 0.5f + 0.5f;
+                // Makes the shadows darker as the power increases
                 light = pow(light, _LightPower);
 
+                // Depends on the power. It should be 1 or greater than 1
+                // When height is less (below 1) the the shadows are darker
+                // When the heigh gets to 1 then there are no shadows.
+                // This is simply when height * color as when height is less the color would be darker and when height reaches 1
+                // we will see the original color. We use pow to use x^a (exponential) curve means more darker at bottom and ligher at top
                 float ambientOcclusion = pow(height, _AmbientOcclusionPower);
 
+                // Just a nob to control if we feel its too dark at lower height
 				ambientOcclusion += _AmbientOcclusionUplift;
 
 				ambientOcclusion = saturate(ambientOcclusion);
