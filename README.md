@@ -12,6 +12,7 @@ This repository showcases a collection of GPU and compute shader-based tech demo
 
 - **Shell Texturing**  
   Implement shell texturing to simulate fur or grass.
+  ![Shell Texturing](mediaForReadme/Grass.png)
 
 ---
 
