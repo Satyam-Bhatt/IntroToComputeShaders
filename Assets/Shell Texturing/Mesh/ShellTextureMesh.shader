@@ -158,7 +158,7 @@ Shader "Unlit/ShellTextureMesh"
                 // value. All dist values are between 0 and 1 so that entire pixel is discarded
 
                 //_Index > 0 ensures that no pixels are discarded in the first mesh. This helps us avoid that hollow look
-                if(dist > 10 *  (rand - height) && _Index > 0)
+                if(dist > _Thickness *  (rand - height) && _Index > 0)
 				{
 					discard;
 					//outCol = float4(0,0,0,0);
