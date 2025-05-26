@@ -329,12 +329,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1221746566}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c402d081867a2ba4d97abcd353d340cb, type: 3}
+  m_Script: {fileID: 11500000, guid: c64e75ec1eefcde4f9197bbc4f7762be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cube: {fileID: 1221746570}
-  startMoving: 0
   lerpValue: 0
+  startMoving: 0
+  speed: 1
 --- !u!1 &2081073813
 GameObject:
   m_ObjectHideFlags: 0
