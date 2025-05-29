@@ -28,6 +28,7 @@ Shader "Unlit/HashTry"
                 float4 vertex : SV_POSITION;
             };
 
+            // ============= integer hash copied from Hugo Elias =========
             // The value changes after we get value with increment of 1. Like when the input parameter has values between 0 and 1 then
             // we will get the same color but when the value increased and goes from 0 to 2 then we will get one same color/value for
             // values between 0 and 1 and one different color/value for values between 1 and 2. So as the values increases the color
@@ -36,8 +37,17 @@ Shader "Unlit/HashTry"
             // 1.5 will give the same color as 1.8 but 2.2 will give a different color as 1.8 [IMAGE]
             // So as the n value gets higher and higher we see randomness but with square patter or line patttern depends on the value [IMAGE]
             // The resulting values are always between 0 and 1
-            float hash(uint n) { // How does this work
-				// integer hash copied from Hugo Elias
+            // The values between 0 and 1, 1 and  2, 2 and 3 are always the same because input parameter is uint so it converts all floating
+            // point values to integers. We can't change it to float because we can't use bitshift operator on floating point values.
+            float hash(uint n) {
+				// (n << 13U) shift the bits 13 places to the left
+                // then XOR it with the original value
+                // 0 XOR 0 = 0
+                // 0 XOR 1 = 1  
+                // 1 XOR 0 = 1
+                // 1 XOR 1 = 0
+                // This spreads out the bits and introduces non-linearity - small changes in input create larger changes in the 
+                // bit pattern. [AVALANCHE EFFECT]
 				n = (n << 13U) ^ n;
 				n = n * (n * n * 15731U + 0x789221U) + 0x1376312589U;
 				return float(n & uint(0x7fffffffU)) / float(0x7fffffff);
