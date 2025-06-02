@@ -13,4 +13,13 @@ public class Grass : MonoBehaviour
     private ComputeBuffer argsBuffer;
     private const int ARGS_STRIDE = sizeof(uint) * 5;
     private ComputeBuffer positionBuffer;
+    private const int POSITION_STRIDE = sizeof(float) * 4;
+
+    private void OnEnable()
+    {
+        argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
+        argsBuffer.SetData(new uint[] { 0, 1, 0, 0, 0 });
+        positionBuffer = new ComputeBuffer(instanceCount, POSITION_STRIDE);
+        kernel = computeShader.FindKernel("CSMain");
+    }
 }
