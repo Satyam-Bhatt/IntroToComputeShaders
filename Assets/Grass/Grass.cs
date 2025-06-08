@@ -57,15 +57,23 @@ public class Grass : MonoBehaviour
         Vector4[] positions = new Vector4[instanceCount];
         for (int i = 0; i < instanceCount; i++)
         {
-            positions[i] = new Vector4(Random.Range(-1f, 1f) + i, 0, Random.Range(-1f, 1f) + i, 1);
+            //positions[i] = new Vector4(Random.Range(-1f, 1f) + i, 0, Random.Range(-1f, 1f) + i, 1);
+            positions[i] = new Vector4(0, 0, 0, 1);
         }
         positionBuffer.SetData(positions);
 
         computeShader.SetBuffer(kernel, "Result", positionBuffer);
         instanceMaterial.SetBuffer("position", positionBuffer);
 
+        int dispatchX = Mathf.CeilToInt(instanceCount / 8.0f);
+        int dispatchY = Mathf.CeilToInt(instanceCount / 8.0f);
+        int dispatchZ = 1;
+
+        computeShader.SetFloat("dispatchX", dispatchX);
+        computeShader.SetFloat("dispatchY", dispatchY);
+
         // Dispatch in Update shaders if we are updating the buffer every frame
-        computeShader.Dispatch(kernel, Mathf.CeilToInt(instanceCount / 8.0f), 1, 1);
+        computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 
     }
 }

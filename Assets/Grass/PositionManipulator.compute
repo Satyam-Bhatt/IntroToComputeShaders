@@ -3,9 +3,26 @@
 
 RWStructuredBuffer<float4> Result;
 
-[numthreads(8,1,1)]
+float dispatchX;
+float dispatchY;
+
+float hash(uint n)
+{
+    n = (n << 13) ^ n;
+    n = (n * (n * n * 15731U + 789221U) + 1376312589U);
+    return float(n & uint(0x7fffffff)) / float(0x7fffffff);
+}
+
+[numthreads(2,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    float4 pos = Result[id.x];
-    Result[id.x] = pos;
+    // dispatchX gives the number of thread groups in the X dimension and 
+    // multiplying by 2 gives the number of threads in the X dimension
+    uint num = id.x + id.y * dispatchX * 2; // x value of numthreads
+    
+    float4 pos = Result[num];
+    pos = float4(pos.x+num , pos.y, pos.z+num, pos.w);
+    
+    //pos = float4(pos.x + hash(id.x) + id.x, pos.y, pos.z + hash(id.x) * 10 + id.x, pos.w);
+    Result[num] = pos;
 }
