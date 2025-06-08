@@ -1,13 +1,11 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
-RWStructuredBuffer<float4> OriginalPosition;
+RWStructuredBuffer<float4> Result;
 
-[numthreads(8,8,1)]
+[numthreads(8,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    
+    float4 pos = Result[id.x];
+    Result[id.x] = pos;
 }
