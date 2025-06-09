@@ -504,9 +504,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c402d081867a2ba4d97abcd353d340cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instanceMesh: {fileID: -3160801503120483180, guid: ab5a90eb0bd352942922f591de9e70a7, type: 3}
+  instanceMesh: {fileID: -8673063054569377183, guid: ab5a90eb0bd352942922f591de9e70a7, type: 3}
   instanceMaterial: {fileID: 2100000, guid: 9c09a7b55b9234d4c8c985cd6e88dd75, type: 2}
-  instanceCount: 16
+  instanceCount: 64
   computeShader: {fileID: 7200000, guid: 6bf79bd949f89b34786d99531c2a3be7, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

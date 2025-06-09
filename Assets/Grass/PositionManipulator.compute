@@ -2,6 +2,7 @@
 #pragma kernel CSMain
 
 RWStructuredBuffer<float4> Result;
+//RWStructuredBuffer<float4x4> Result;
 
 float dispatchX;
 float dispatchY;
@@ -13,15 +14,16 @@ float hash(uint n)
     return float(n & uint(0x7fffffff)) / float(0x7fffffff);
 }
 
-[numthreads(2,8,1)]
+[numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // dispatchX gives the number of thread groups in the X dimension and 
-    // multiplying by 2 gives the number of threads in the X dimension
-    uint num = id.x + id.y * dispatchX * 2; // x value of numthreads
+    // multiplying by 8 gives the number of threads in the X dimension
+    // num gives individual ID to eash thread and converts a vec2 to a float. This is how we access and modify the buffer
+    uint num = id.x + id.y * dispatchX * 8; // x value of numthreads
     
     float4 pos = Result[num];
-    pos = float4(pos.x+num , pos.y, pos.z+num, pos.w);
+    pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
     
     //pos = float4(pos.x + hash(id.x) + id.x, pos.y, pos.z + hash(id.x) * 10 + id.x, pos.w);
     Result[num] = pos;
