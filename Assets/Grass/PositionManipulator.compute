@@ -1,8 +1,8 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-RWStructuredBuffer<float4> Result;
-//RWStructuredBuffer<float4x4> Result;
+//RWStructuredBuffer<float4> Result;
+RWStructuredBuffer<float4x4> Result;
 
 float dispatchX;
 float dispatchY;
@@ -14,6 +14,11 @@ float hash(uint n)
     return float(n & uint(0x7fffffff)) / float(0x7fffffff);
 }
 
+float DegreeToRadian(float degree)
+{
+    return degree * 0.0174533;
+}
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
@@ -22,9 +27,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     // num gives individual ID to eash thread and converts a vec2 to a float. This is how we access and modify the buffer
     uint num = id.x + id.y * dispatchX * 8; // x value of numthreads
     
-    float4 pos = Result[num];
-    pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
+    float4 pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
+    
+    float angle = DegreeToRadian(45);
+    float4x4 transform = float4x4(
+                                    float4( cos(angle), 0 , sin(angle) , pos.x),
+                                    float4(      0    , 1 ,      0     , pos.y),
+                                    float4(-sin(angle), 0 , cos(angle) , pos.z),
+                                    float4(      0    , 0 ,      0     , pos.w));
     
     //pos = float4(pos.x + hash(id.x) + id.x, pos.y, pos.z + hash(id.x) * 10 + id.x, pos.w);
-    Result[num] = pos;
+    Result[num] = transform;
 }
