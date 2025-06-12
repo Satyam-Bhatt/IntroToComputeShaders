@@ -49,29 +49,6 @@ public class Grass : MonoBehaviour
 
     private void UpdateBuffer()
     {
-        Matrix4x4 check = new Matrix4x4();
-        check.m00 = 1;
-        check.m01 = 2;
-        check.m02 = 3;
-        check.m03 = 4;
-        check.m10 = 5;
-        check.m11 = 6;
-        check.m12 = 7;
-        check.m13 = 8;
-        check.m20 = 9;
-        check.m21 = 10;
-        check.m22 = 11;
-        check.m23 = 12;
-        check.m30 = 13;
-        check.m31 = 14;
-        check.m32 = 15;
-        check.m33 = 16;
-        Debug.Log(check);
-        Debug.Log($"Row 0: {check.GetRow(0)}");
-        Debug.Log($"Row 1: {check.GetRow(1)}");
-        Debug.Log($"Row 2: {check.GetRow(2)}");
-        Debug.Log($"Row 3: {check.GetRow(3)}");
-
         //Transform Buffer
         Matrix4x4[] transforms = new Matrix4x4[instanceCount];
         for (int i = 0; i < instanceCount; i++)
@@ -79,8 +56,8 @@ public class Grass : MonoBehaviour
             transforms[i] = Matrix4x4.TRS(new Vector3(1,1,1), Quaternion.identity, Vector3.one);
             Debug.Log(transforms[i]);
         }
-        //transformBuffer.SetData(transforms);
-        //instanceMaterial.SetBuffer("transform", transformBuffer);
+        transformBuffer.SetData(transforms);
+        instanceMaterial.SetBuffer("transform", transformBuffer);
 
         uint[] _args = {0 , 1, 0, 0, 0 };
         _args[0] = (uint)instanceMesh.GetIndexCount(0);
