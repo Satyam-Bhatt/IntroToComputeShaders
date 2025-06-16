@@ -27,7 +27,7 @@ Shader "Unlit/ShaderForGrass"
             //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            StructuredBuffer<float4X4> transform;
+            StructuredBuffer<float4x4> transform;
 
             struct appdata
             {
@@ -46,8 +46,12 @@ Shader "Unlit/ShaderForGrass"
 
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
-                float4 startPos = position[id];
-                float3 world_Pos = startPos.xyz + v.vertex.xyz;
+                float4x4 m = transform[id];
+                //float4 startPos = float4(m._m03, m._m13, m._m23, m._m33);
+                //float3 world_Pos = startPos.xyz + v.vertex.xyz;
+
+                // This applies the translation, rotation and scaling to the vertex
+                float4 world_Pos = mul(m, v.vertex);
 
                 v2f o;
                 //o.vertex = UnityObjectToClipPos(v.vertex);

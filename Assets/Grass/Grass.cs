@@ -24,6 +24,11 @@ public class Grass : MonoBehaviour
         argsBuffer.SetData(new uint[] { 0, 1, 0, 0, 0 });
         positionBuffer = new ComputeBuffer(instanceCount, POSITION_STRIDE);
         kernel = computeShader.FindKernel("CSMain");
+        if (kernel < 0)
+        {
+            Debug.LogError("Could not find kernel 'CSMain' in compute shader!");
+            return;
+        }
 
         transformBuffer = new ComputeBuffer(instanceCount, TRANSFORM_STRIDE);
     }
@@ -57,6 +62,8 @@ public class Grass : MonoBehaviour
             Debug.Log(transforms[i]);
         }
         transformBuffer.SetData(transforms);
+
+        computeShader.SetBuffer(kernel, "Result", transformBuffer);
         instanceMaterial.SetBuffer("transform", transformBuffer);
 
         uint[] _args = {0 , 1, 0, 0, 0 };
@@ -77,8 +84,8 @@ public class Grass : MonoBehaviour
         }
         positionBuffer.SetData(positions);
 
-        computeShader.SetBuffer(kernel, "Result", positionBuffer);
-        instanceMaterial.SetBuffer("position", positionBuffer);
+        //computeShader.SetBuffer(kernel, "Result", positionBuffer);
+        //instanceMaterial.SetBuffer("position", positionBuffer);
 
         int dispatchX = Mathf.CeilToInt(instanceCount / 8.0f);
         int dispatchY = Mathf.CeilToInt(instanceCount / 8.0f);
