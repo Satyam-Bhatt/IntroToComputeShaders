@@ -24,6 +24,8 @@ Shader "Unlit/ShaderForGrass"
             #pragma target 5.0
 
             #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            #include "AutoLight.cginc"
             //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -31,6 +33,7 @@ Shader "Unlit/ShaderForGrass"
 
             struct appdata
             {
+                float3 normal : NORMAL;
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
@@ -39,6 +42,7 @@ Shader "Unlit/ShaderForGrass"
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                float3 diffuse : TEXCOORD2;
             };
 
             sampler2D _MainTex;
@@ -57,12 +61,14 @@ Shader "Unlit/ShaderForGrass"
                 //o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex = UnityObjectToClipPos(world_Pos);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.diffuse = saturate(dot(v.normal, _WorldSpaceLightPos0.xyz));
                 return o;
             }
 
             float4 frag (v2f i) : SV_Target
             {
                 float4 col = float4(1.0f, 0.4f, 1.0f, 1.0f);
+                col.rgb *= i.diffuse;
                 return col;
             }
             ENDCG

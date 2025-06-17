@@ -6,6 +6,7 @@ RWStructuredBuffer<float4x4> Result;
 
 float dispatchX;
 float dispatchY;
+float Angle;
 
 float hash(uint n)
 {
@@ -31,19 +32,22 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4 pos = float4(m[0][3], m[1][3], m[2][3], m[3][3]);
     
     //pos = float4(pos.x + id.x, pos.y, pos.z + id.y, pos.w);
-    pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
+    //pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
+    pos = float4(fmod(id.x, 8), pos.y, uint(num / 8), pos.w);
     
-    float angle = DegreeToRadian(15);
+    float t = hash(id.x + id.y * 1000);
+    Angle = lerp(0, 360, t);
+    float angle = DegreeToRadian(Angle);
     //float4x4 transform = float4x4(
     //                                float4(1, 0, 0, pos.x),
     //                                float4(0, 1, 0, pos.y),
     //                                float4(0, 0, 1, pos.z),
     //                                float4(0, 0, 0, pos.w));
     float4x4 transform = float4x4(
-                                    float4(cos(angle), 0, sin(angle), pos.x),
-                                    float4(0, 1, 0, pos.y),
+                                    float4( cos(angle), 0, sin(angle), pos.x),
+                                    float4(    0      , 1,     0     , pos.y),
                                     float4(-sin(angle), 0, cos(angle), pos.z),
-                                    float4(0, 0, 0, pos.w));
+                                    float4(    0      , 0,     0     , pos.w));
     
     //pos = float4(pos.x + hash(id.x) + id.x, pos.y, pos.z + hash(id.x) * 10 + id.x, pos.w);
     Result[num] = transform;

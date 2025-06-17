@@ -18,6 +18,9 @@ public class Grass : MonoBehaviour
     private ComputeBuffer transformBuffer;
     private const int TRANSFORM_STRIDE = sizeof(float) * 16;
 
+    private int dispatchX, dispatchY, dispatchZ;
+    [SerializeField] private float angle = 0f;
+
     private void OnEnable()
     {
         argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
@@ -49,6 +52,9 @@ public class Grass : MonoBehaviour
 
     private void Update()
     {
+        computeShader.SetFloat("Angle", angle);
+        computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
+
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
     }
 
@@ -87,15 +93,15 @@ public class Grass : MonoBehaviour
         //computeShader.SetBuffer(kernel, "Result", positionBuffer);
         //instanceMaterial.SetBuffer("position", positionBuffer);
 
-        int dispatchX = Mathf.CeilToInt(instanceCount / 8.0f);
-        int dispatchY = Mathf.CeilToInt(instanceCount / 8.0f);
-        int dispatchZ = 1;
+        dispatchX = Mathf.CeilToInt(instanceCount / 8.0f);
+        dispatchY = Mathf.CeilToInt(instanceCount / 8.0f);
+        dispatchZ = 1;
 
         computeShader.SetFloat("dispatchX", dispatchX);
         computeShader.SetFloat("dispatchY", dispatchY);
 
         // Dispatch in Update shaders if we are updating the buffer every frame
-        computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
+        // computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 
     }
 }
