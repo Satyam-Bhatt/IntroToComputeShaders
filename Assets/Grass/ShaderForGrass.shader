@@ -60,16 +60,25 @@ Shader "Unlit/ShaderForGrass"
                 v2f o;
                 //o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex = UnityObjectToClipPos(world_Pos);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.diffuse = saturate(dot(v.normal, _WorldSpaceLightPos0.xyz));
+                o.uv = v.uv;
+                if(saturate(dot(v.normal, _WorldSpaceLightPos0.xyz)) > 0.0f)
+                {
+                    o.diffuse = saturate(dot(v.normal, _WorldSpaceLightPos0.xyz));
+                }
+                else
+                {
+                    o.diffuse = saturate(dot(v.normal, -_WorldSpaceLightPos0.xyz));
+                }
                 return o;
             }
 
             float4 frag (v2f i) : SV_Target
             {
-                float4 col = float4(1.0f, 0.4f, 1.0f, 1.0f);
-                col.rgb *= i.diffuse;
-                return col;
+                float2 uv = i.uv;
+                return float4(uv, 0 ,1);
+                //float4 col = float4(1.0f, 0.4f, 1.0f, 1.0f);
+                //col.rgb *= i.diffuse;
+                //return col;
             }
             ENDCG
         }

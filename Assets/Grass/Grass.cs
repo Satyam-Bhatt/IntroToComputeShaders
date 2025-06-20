@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Grass : MonoBehaviour
 {
@@ -47,7 +49,23 @@ public class Grass : MonoBehaviour
 
     private void Start()
     {
+        //CheckNormals();
         UpdateBuffer();
+    }
+
+    private void CheckNormals()
+    {
+        Vector3[] normals = instanceMesh.normals;
+        for (int i = 0; i < normals.Length; i++)
+        {
+            if (normals[i].x < 0)
+            {
+                normals[i] = new Vector3(normals[i].x * -1, normals[i].y, normals[i].z);
+            }
+            Debug.Log(normals[i]);
+        }
+
+        instanceMesh.normals = normals;
     }
 
     private void Update()
