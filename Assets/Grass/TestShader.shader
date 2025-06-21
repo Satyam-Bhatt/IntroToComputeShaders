@@ -1,4 +1,4 @@
-Shader "Unlit/ShaderForGrass"
+Shader "Unlit/TestShader"
 {
     Properties
     {
@@ -50,16 +50,16 @@ Shader "Unlit/ShaderForGrass"
 
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
-                float4x4 m = transform[id];
+                //float4x4 m = transform[id];
                 //float4 startPos = float4(m._m03, m._m13, m._m23, m._m33);
                 //float3 world_Pos = startPos.xyz + v.vertex.xyz;
 
                 // This applies the translation, rotation and scaling to the vertex
-                float4 world_Pos = mul(m, v.vertex);
+                //float4 world_Pos = mul(m, v.vertex);
 
                 v2f o;
-                //o.vertex = UnityObjectToClipPos(v.vertex);
-                o.vertex = UnityObjectToClipPos(world_Pos);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                //o.vertex = UnityObjectToClipPos(world_Pos);
                 o.uv = v.uv;
                 if(saturate(dot(v.normal, _WorldSpaceLightPos0.xyz)) > 0.0f)
                 {
@@ -74,11 +74,13 @@ Shader "Unlit/ShaderForGrass"
 
             float4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv;
-                //return float4(uv, 0 ,1);
-                float4 col = float4(0.0f, 0.4f, 0.0f, 1.0f);
-                col.rgb *= i.diffuse;
-                return col;
+                float2 uv = i.uv * 2 - 1;
+                float len = length(uv);
+                return len;
+                return float4(uv, 0 ,1);
+                //float4 col = float4(0.0f, 0.4f, 0.0f, 1.0f);
+                //col.rgb *= i.diffuse;
+                //return col;
             }
             ENDCG
         }

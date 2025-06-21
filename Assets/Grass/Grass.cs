@@ -83,7 +83,6 @@ public class Grass : MonoBehaviour
         for (int i = 0; i < instanceCount; i++)
         {
             transforms[i] = Matrix4x4.TRS(new Vector3(1,1,1), Quaternion.identity, Vector3.one);
-            Debug.Log(transforms[i]);
         }
         transformBuffer.SetData(transforms);
 
