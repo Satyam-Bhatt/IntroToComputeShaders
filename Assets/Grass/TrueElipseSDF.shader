@@ -7,13 +7,20 @@ Shader "Unlit/TrueElipseSDF"
         _SmoothTwo ("Smoothness 2", Range(0,1)) = 0.035
         _First ("First", Vector) = (0.075, 0.9, 0, 0)
         _Third ("Third", Vector) = (0.035, 0.1, 0, 0)
+        _BottomColor("Bottom Color", Color) = (0, 0, 0, 1)
+        _TopColor("Top Color", Color) = (0, 0, 0, 1)
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent"
+        "Queue"="Transparent" }
 
         Pass
         {
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            Cull Off
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -74,7 +81,7 @@ Shader "Unlit/TrueElipseSDF"
             }
 
             sampler2D _MainTex;
-            float4 _MainTex_ST, _First, _Second, _Third;
+            float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor;
             float _SmoothOne, _SmoothTwo;
 
             v2f vert (appdata v)
@@ -100,7 +107,15 @@ Shader "Unlit/TrueElipseSDF"
 				uv3.y = uv3.y + 0.75;
                 float elpise3 = sdEllipse(uv3, float2(_Third.x, _Third.y));
                 float final = smin(first, elpise3, _SmoothTwo);
-                return pow(final, 0.7);
+                float mask = final;
+                mask = 1 - step(0.01, mask);
+                final = abs(final) + 0.1;
+                final = pow(final, 0.6);
+
+                float2 uvCol = i.uv;
+                uvCol.y = pow(uvCol.y, 2);
+                float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
+                return float4( final * col.rgb, mask);
             }
             ENDCG
         }
