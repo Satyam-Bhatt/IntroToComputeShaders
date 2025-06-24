@@ -9,6 +9,11 @@ Shader "Unlit/TrueElipseSDF"
         _Third ("Third", Vector) = (0.035, 0.1, 0, 0)
         _BottomColor("Bottom Color", Color) = (0, 0, 0, 1)
         _TopColor("Top Color", Color) = (0, 0, 0, 1)
+        _BendFactor("Bend Factor", Range(0,10)) = 0
+        _BendScale("Bend Scale", Range(-10,10)) = 0
+        _BendScaleX("Bend Scale X", Range(-10,10)) = 0
+        _Angle("Angle", Range(0, 360)) = 0
+        _BlendAngleScale("Blend Angle Scale", Range(-10,10)) = 0
     }
     SubShader
     {
@@ -73,6 +78,18 @@ Shader "Unlit/TrueElipseSDF"
                 return length(r-p) * sign(p.y-r.y);
             }
 
+            float3 RotateAroundY(float3 position, float angle)
+            {
+                float c = cos(angle);
+                float s = sin(angle);
+    
+                return float3(
+                    position.x * c + position.z * s,
+                    position.y,
+                    -position.x * s + position.z * c
+                );
+            }
+
             float smin( float a, float b, float k )
             {
                 k *= 1.0;
@@ -82,10 +99,17 @@ Shader "Unlit/TrueElipseSDF"
 
             sampler2D _MainTex;
             float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor;
-            float _SmoothOne, _SmoothTwo;
+            float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale;
 
             v2f vert (appdata v)
             {
+                float uvY = v.uv.y;
+                uvY = pow(uvY, _BendFactor);
+                v.vertex.z = v.vertex.z + uvY * _BendScale;
+				v.vertex.x = v.vertex.x + uvY * _BendScaleX;
+
+                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY);
+
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
