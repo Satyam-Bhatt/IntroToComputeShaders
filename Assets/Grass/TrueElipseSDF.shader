@@ -9,11 +9,11 @@ Shader "Unlit/TrueElipseSDF"
         _Third ("Third", Vector) = (0.035, 0.1, 0, 0)
         _BottomColor("Bottom Color", Color) = (0, 0, 0, 1)
         _TopColor("Top Color", Color) = (0, 0, 0, 1)
-        _BendFactor("Bend Factor", Range(0,10)) = 0
-        _BendScale("Bend Scale", Range(-10,10)) = 0
-        _BendScaleX("Bend Scale X", Range(-10,10)) = 0
-        _Angle("Angle", Range(0, 360)) = 0
-        _BlendAngleScale("Blend Angle Scale", Range(-10,10)) = 0
+        _BendFactor("Bend Factor", Float) = 0
+        _BendScale("Bend Scale", Float) = 0
+        _BendScaleX("Bend Scale X", Float) = 0
+        _Angle("Angle", Float) = 0
+        _BlendAngleScale("Blend Angle Scale", Float) = 0
         _NoiseScale ("Noise Scale", Float) = 1.0
         _NoiseSpeed ("Noise Speed", Float) = 1.0
     }
@@ -192,23 +192,38 @@ Shader "Unlit/TrueElipseSDF"
 
             v2f vert (appdata v)
             {
+                // For Noise Input use the position stored in Structured Buffer and access using InstanceID as Input
                 float3 noiseInput = float3
                 (
-                    v.vertex.x * _NoiseScale,
+                    1 * _NoiseScale,
 					v.vertex.z * _NoiseScale,
 					_Time.y * _NoiseSpeed
                 );
+                float3 noiseInput2 = float3
+                (
+				   v.vertex.z * _NoiseScale,
+                   1 * _NoiseScale,
+				   _Time.y * _NoiseSpeed
+                );
 
                 float noiseValue = snoise(noiseInput);
+                float noiseValue2 = snoise(noiseInput2);
 
                 float uvY = v.uv.y;
                 uvY = pow(uvY, _BendFactor);
-                v.vertex.z = v.vertex.z + uvY * _BendScale;
-				v.vertex.x = v.vertex.x + uvY * _BendScaleX;
+                // Without Noise
+                //v.vertex.z = v.vertex.z + uvY * _BendScale;
+				//v.vertex.x = v.vertex.x + uvY * _BendScaleX;
 
-                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY);
+                // With Noise
+                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale;
+				v.vertex.x = v.vertex.x + uvY * noiseValue2 * _BendScaleX;
 
-				v.vertex.z = v.vertex.z + noiseValue;
+                // Without Noise
+                //v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * _BlendAngleScale);
+
+                // With Noise
+                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue * 2 - 1));
 
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
