@@ -1,4 +1,4 @@
-Shader "Unlit/ShaderForGrass"
+Shader "Unlit/GrassShader_Final"
 {
     Properties
     {
@@ -19,7 +19,7 @@ Shader "Unlit/ShaderForGrass"
     }
     SubShader
     {
-         Tags { "RenderType"="Transparent"
+        Tags { "RenderType"="Transparent"
         "Queue"="Transparent" }
 
         Pass
@@ -35,21 +35,16 @@ Shader "Unlit/ShaderForGrass"
             #pragma multi_compile_instancing // Enables GPU instancing
 
             // Signal this shader requires compute buffers
-            #pragma prefer_hlslcc gles
-            #pragma exclude_renderers d3d11_9x
-            #pragma target 5.0
+             #pragma prefer_hlslcc gles
+             #pragma exclude_renderers d3d11_9x
+            // #pragma target 5.0
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
             #include "AutoLight.cginc"
-            //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
-            StructuredBuffer<float4x4> transform;
 
             struct appdata
             {
-                float3 normal : NORMAL;
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
@@ -58,7 +53,6 @@ Shader "Unlit/ShaderForGrass"
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
-                float3 diffuse : TEXCOORD2;
             };
 
             float3 mod289(float3 x)
@@ -205,33 +199,50 @@ Shader "Unlit/ShaderForGrass"
             float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor;
             float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale, _NoiseScale, _NoiseSpeed;
 
-            v2f vert (appdata v, const uint id : SV_InstanceID)
+            v2f vert (appdata v)
             {
-                float4x4 m = transform[id];
-                //float4 startPos = float4(m._m03, m._m13, m._m23, m._m33);
-                //float3 world_Pos = startPos.xyz + v.vertex.xyz;
+                // For Noise Input use the position stored in Structured Buffer and access using InstanceID as Input
+                float3 noiseInput = float3
+                (
+                    1 * _NoiseScale,
+					v.vertex.z * _NoiseScale,
+					_Time.y * _NoiseSpeed
+                );
+                float3 noiseInput2 = float3
+                (
+				   v.vertex.z * _NoiseScale,
+                   1 * _NoiseScale,
+				   _Time.y * _NoiseSpeed
+                );
 
-                // This applies the translation, rotation and scaling to the vertex
-                float4 world_Pos = mul(m, v.vertex);
+                float noiseValue = snoise(noiseInput);
+                float noiseValue2 = snoise(noiseInput2);
+
+                float uvY = v.uv.y;
+                uvY = pow(uvY, _BendFactor);
+                // Without Noise
+                //v.vertex.z = v.vertex.z + uvY * _BendScale;
+				//v.vertex.x = v.vertex.x + uvY * _BendScaleX;
+
+                // With Noise
+                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale;
+				v.vertex.x = v.vertex.x + uvY * noiseValue2 * _BendScaleX;
+
+                // Without Noise
+                //v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * _BlendAngleScale);
+
+                // With Noise
+                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue * 2 - 1));
 
                 v2f o;
-                //o.vertex = UnityObjectToClipPos(v.vertex);
-                o.vertex = UnityObjectToClipPos(world_Pos);
-                o.uv = v.uv;
-                if(saturate(dot(v.normal, _WorldSpaceLightPos0.xyz)) > 0.0f)
-                {
-                    o.diffuse = saturate(dot(v.normal, _WorldSpaceLightPos0.xyz));
-                }
-                else
-                {
-                    o.diffuse = saturate(dot(v.normal, -_WorldSpaceLightPos0.xyz));
-                }
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
 
             float4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv * 2 - 1;
+				float2 uv = i.uv * 2 - 1;
                 //uv = uv * 6;
                 float elpise = sdEllipse(uv, float2(_First.x, _First.y));
                 //elpise = pow(elpise, 0.8);
@@ -253,13 +264,6 @@ Shader "Unlit/ShaderForGrass"
                 uvCol.y = pow(uvCol.y, 2);
                 float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
                 return float4( final * col.rgb, mask);
-
-
-                // float2 uv = i.uv;
-                // //return float4(uv, 0 ,1);
-                // float4 col = float4(0.0f, 0.4f, 0.0f, 1.0f);
-                // col.rgb *= i.diffuse;
-                // return col;
             }
             ENDCG
         }
