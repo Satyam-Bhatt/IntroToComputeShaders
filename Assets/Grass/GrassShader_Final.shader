@@ -43,6 +43,8 @@ Shader "Unlit/GrassShader_Final"
             #include "Lighting.cginc"
             #include "AutoLight.cginc"
 
+            StructuredBuffer<float4x4> transform;
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -199,8 +201,10 @@ Shader "Unlit/GrassShader_Final"
             float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor;
             float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale, _NoiseScale, _NoiseSpeed;
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, const uint id : SV_InstanceID)
             {
+                float4x4 m = transform[id];
+
                 // For Noise Input use the position stored in Structured Buffer and access using InstanceID as Input
                 float3 noiseInput = float3
                 (
@@ -234,8 +238,10 @@ Shader "Unlit/GrassShader_Final"
                 // With Noise
                 v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue * 2 - 1));
 
+                float4 worldPos = mul(m, v.vertex);
+
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = UnityObjectToClipPos(worldPos);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
