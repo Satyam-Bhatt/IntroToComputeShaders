@@ -3,6 +3,7 @@
 
 //RWStructuredBuffer<float4> Result;
 RWStructuredBuffer<float4x4> Result;
+int count;
 
 float dispatchX;
 float dispatchY;
@@ -31,9 +32,11 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float4x4 m = Result[num];
     float4 pos = float4(m[0][3], m[1][3], m[2][3], m[3][3]);
     
+    int perAxis = pow(count, 0.5);
+    
     //pos = float4(pos.x + id.x, pos.y, pos.z + id.y, pos.w);
     //pos = float4(pos.x + fmod(id.x, 8), pos.y, pos.z + uint(num / 8), pos.w);
-    pos = float4(fmod(id.x, 6), pos.y, uint(num / 6), pos.w);
+    pos = float4(fmod(id.x, perAxis), pos.y, uint(num / perAxis), pos.w);
     
     float t = hash(id.x + id.y * 1000);
     Angle = lerp(0, 360, t);

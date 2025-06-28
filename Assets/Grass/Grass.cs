@@ -116,7 +116,7 @@ public class Grass : MonoBehaviour
 
         computeShader.SetFloat("dispatchX", dispatchX);
         computeShader.SetFloat("dispatchY", dispatchY);
-
+        computeShader.SetInt("count", instanceCount);
         // Dispatch in Update shaders if we are updating the buffer every frame
         // computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 

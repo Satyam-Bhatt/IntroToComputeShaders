@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &595447313
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -793,7 +793,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   instanceMesh: {fileID: 3239141963036872809, guid: ab5a90eb0bd352942922f591de9e70a7, type: 3}
   instanceMaterial: {fileID: 2100000, guid: a2ed66af4d9a9dc438ee9e6884608857, type: 2}
-  instanceCount: 16
+  instanceCount: 100
   computeShader: {fileID: 7200000, guid: 6bf79bd949f89b34786d99531c2a3be7, type: 3}
   angle: 0
 --- !u!1660057539 &9223372036854775807

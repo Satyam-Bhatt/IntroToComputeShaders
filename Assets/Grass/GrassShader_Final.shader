@@ -19,16 +19,20 @@ Shader "Unlit/GrassShader_Final"
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent"
-        "Queue"="Transparent" }
+        // Tags { "RenderType"="Transparent"
+        // "Queue"="Transparent" }
+
+        Tags { "RenderType"="Opaque" }
 
         Pass
         {
-            ZWrite Off
-            Blend SrcAlpha OneMinusSrcAlpha
+            //ZWrite Off
+            //Blend SrcAlpha OneMinusSrcAlpha
             Cull Off
 
             CGPROGRAM
+            // Upgrade NOTE: excluded shader from DX11 because it uses wrong array syntax (type[size] name)
+            #pragma exclude_renderers d3d11
             #pragma vertex vert
             #pragma fragment frag
 
@@ -37,7 +41,7 @@ Shader "Unlit/GrassShader_Final"
             // Signal this shader requires compute buffers
              #pragma prefer_hlslcc gles
              #pragma exclude_renderers d3d11_9x
-            // #pragma target 5.0
+             //#pragma target 5.0
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -204,7 +208,7 @@ Shader "Unlit/GrassShader_Final"
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
                 float4x4 m = transform[id];
-
+                //float3 _position = float3(m[3][0], float[3][1], float[3][2]);
                 // For Noise Input use the position stored in Structured Buffer and access using InstanceID as Input
                 float3 noiseInput = float3
                 (
@@ -269,7 +273,9 @@ Shader "Unlit/GrassShader_Final"
                 float2 uvCol = i.uv;
                 uvCol.y = pow(uvCol.y, 2);
                 float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
-                return float4( final * col.rgb, mask);
+                float4 grassBlade = float4( final * col.rgb, 1);
+                if(mask == 0) discard;
+                return grassBlade;
             }
             ENDCG
         }
