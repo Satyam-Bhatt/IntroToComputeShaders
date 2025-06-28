@@ -31,8 +31,6 @@ Shader "Unlit/GrassShader_Final"
             Cull Off
 
             CGPROGRAM
-            // Upgrade NOTE: excluded shader from DX11 because it uses wrong array syntax (type[size] name)
-            #pragma exclude_renderers d3d11
             #pragma vertex vert
             #pragma fragment frag
 
@@ -53,12 +51,14 @@ Shader "Unlit/GrassShader_Final"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float noise : TEXCOORD1;
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+				float noise : TEXCOORD1;
             };
 
             float3 mod289(float3 x)
@@ -208,23 +208,25 @@ Shader "Unlit/GrassShader_Final"
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
                 float4x4 m = transform[id];
-                //float3 _position = float3(m[3][0], float[3][1], float[3][2]);
+                float3 _position = float3(m._m03, m._m13, m._m23);
                 // For Noise Input use the position stored in Structured Buffer and access using InstanceID as Input
                 float3 noiseInput = float3
                 (
-                    1 * _NoiseScale,
-					v.vertex.z * _NoiseScale,
+                    _position.x * _NoiseScale,
+					_position.z * _NoiseScale,
 					_Time.y * _NoiseSpeed
                 );
                 float3 noiseInput2 = float3
                 (
-				   v.vertex.z * _NoiseScale,
-                   1 * _NoiseScale,
-				   _Time.y * _NoiseSpeed
+                    (_position.x + 100) * _NoiseScale,
+					(_position.z + 100) * _NoiseScale,
+					_Time.y * _NoiseSpeed * 1.2
                 );
 
                 float noiseValue = snoise(noiseInput);
                 float noiseValue2 = snoise(noiseInput2);
+
+                v.noise = noiseValue;
 
                 float uvY = v.uv.y;
                 uvY = pow(uvY, _BendFactor);
@@ -246,12 +248,21 @@ Shader "Unlit/GrassShader_Final"
 
                 v2f o;
                 o.vertex = UnityObjectToClipPos(worldPos);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 return o;
             }
 
-            float4 frag (v2f i) : SV_Target
+            float4 frag (v2f i, const uint id : SV_InstanceID) : SV_Target
             {
+                // float4x4 m = transform[id];
+                // float3 _position = float3(m._m03, m._m13, m._m23);
+                // float3 noiseInput = float3
+                // (
+                //      i.uv.x, i.uv.y, _Time.y
+                // );
+                // float noiseValue = snoise(noiseInput);
+                // return float4(noiseValue, noiseValue, noiseValue, 1);
+
 				float2 uv = i.uv * 2 - 1;
                 //uv = uv * 6;
                 float elpise = sdEllipse(uv, float2(_First.x, _First.y));

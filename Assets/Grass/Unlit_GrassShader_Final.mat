@@ -34,13 +34,13 @@ Material:
     - _BendScale: 2.8
     - _BendScaleX: 3.38
     - _BlendAngleScale: 1
-    - _NoiseScale: 1
-    - _NoiseSpeed: 0.41
+    - _NoiseScale: 0.2
+    - _NoiseSpeed: 0.3
     - _SmoothOne: 0.026
     - _SmoothTwo: 0.04
     m_Colors:
-    - _BottomColor: {r: 0.13725491, g: 0.2627451, b: 0.0627451, a: 1}
+    - _BottomColor: {r: 0.13843836, g: 0.26415092, b: 0.06354573, a: 1}
     - _First: {r: 0.085, g: 0.9, b: 0, a: 0}
     - _Third: {r: 0.01, g: 0.13, b: 0, a: 0}
-    - _TopColor: {r: 0.16078432, g: 1, b: 0, a: 1}
+    - _TopColor: {r: 0.15923643, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []
