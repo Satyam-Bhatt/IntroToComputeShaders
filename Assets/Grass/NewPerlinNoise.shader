@@ -110,11 +110,18 @@ Shader "Unlit/NewPerlinNoise"
                 return o;
             }
 
+            StructuredBuffer<float4x4> transform;
+
             float4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv + _Time.y * 0.2;
+                float2 uv = i.uv * 16;
+
+				uint id = floor(uv.x) * floor(uv.y) + floor(uv.x);
+                float4x4 m = transform[id];
+                float3 _position = float3(m._m03, m._m13, m._m23);
+
                 uint seed = 0x578437adU;
-                float value = perlinNoise(uv * 2, seed);
+                float value = perlinNoise(uv, seed);
                 value = (value + 1.0) * 0.5;
                 return value;
                 // sample the texture
