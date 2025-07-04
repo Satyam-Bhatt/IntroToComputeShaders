@@ -102,6 +102,8 @@ Shader "Unlit/NewPerlinNoise"
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            StructuredBuffer<float4x4> transform;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -110,18 +112,21 @@ Shader "Unlit/NewPerlinNoise"
                 return o;
             }
 
-            StructuredBuffer<float4x4> transform;
 
             float4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv * 16;
+                float2 uv_ID = floor(uv);
+                //return float4(uv/16, 0, 1);
 
-				uint id = floor(uv.x) * floor(uv.y) + floor(uv.x);
+				uint id = 16 * floor(uv_ID.y) + floor(uv_ID.x);
                 float4x4 m = transform[id];
                 float3 _position = float3(m._m03, m._m13, m._m23);
+                //return float4(_position.x/16, _position.z/16, 0, 1);
 
                 uint seed = 0x578437adU;
-                float value = perlinNoise(uv, seed);
+                //float value = perlinNoise(uv + _Time.y, seed);
+                float value = perlinNoise(float2(_position.x, _position.z) * 0.0825 + _Time.y, seed);
                 value = (value + 1.0) * 0.5;
                 return value;
                 // sample the texture

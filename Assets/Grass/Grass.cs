@@ -23,6 +23,8 @@ public class Grass : MonoBehaviour
     private int dispatchX, dispatchY, dispatchZ;
     [SerializeField] private float angle = 0f;
 
+    [SerializeField] private Material testMat;
+
     private void OnEnable()
     {
         argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
@@ -119,6 +121,9 @@ public class Grass : MonoBehaviour
         computeShader.SetInt("count", instanceCount);
         // Dispatch in Update shaders if we are updating the buffer every frame
         // computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
+
+        testMat.SetBuffer("transform", transformBuffer);
+
 
     }
 }
