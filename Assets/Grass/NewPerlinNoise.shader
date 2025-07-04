@@ -126,7 +126,7 @@ Shader "Unlit/NewPerlinNoise"
 
                 uint seed = 0x578437adU;
                 //float value = perlinNoise(uv + _Time.y, seed);
-                float value = perlinNoise(float2(_position.x, _position.z) * 0.0825 + _Time.y, seed);
+                float value = perlinNoise(float2(_position.x, _position.z) * 0.0625 + _Time.y, seed); // 1/16 = 0.0625
                 value = (value + 1.0) * 0.5;
                 return value;
                 // sample the texture
