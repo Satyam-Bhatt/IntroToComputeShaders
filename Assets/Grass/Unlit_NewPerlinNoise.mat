@@ -36,6 +36,7 @@ Material:
     - _BlendAngleScale: 0
     - _NoiseScale: 1
     - _NoiseSpeed: 1
+    - _Scale: 0.05
     - _SmoothOne: 0.03
     - _SmoothTwo: 0.035
     m_Colors:

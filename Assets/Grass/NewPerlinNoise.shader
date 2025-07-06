@@ -4,19 +4,7 @@ Shader "Unlit/NewPerlinNoise"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _SmoothOne ("Smoothness 1", Range(0,1)) = 0.03
-        _SmoothTwo ("Smoothness 2", Range(0,1)) = 0.035
-        _First ("First", Vector) = (0.075, 0.9, 0, 0)
-        _Third ("Third", Vector) = (0.035, 0.1, 0, 0)
-        _BottomColor("Bottom Color", Color) = (0, 0, 0, 1)
-        _TopColor("Top Color", Color) = (0, 0, 0, 1)
-        _BendFactor("Bend Factor", Float) = 0
-        _BendScale("Bend Scale", Float) = 0
-        _BendScaleX("Bend Scale X", Float) = 0
-        _Angle("Angle", Float) = 0
-        _BlendAngleScale("Blend Angle Scale", Float) = 0
-        _NoiseScale ("Noise Scale", Float) = 1.0
-        _NoiseSpeed ("Noise Speed", Float) = 1.0
+        _Scale ("Scale", Float) = 0.0625
     }
     SubShader
     {
@@ -101,6 +89,7 @@ Shader "Unlit/NewPerlinNoise"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float _Scale;
 
             StructuredBuffer<float4x4> transform;
 
@@ -126,7 +115,7 @@ Shader "Unlit/NewPerlinNoise"
 
                 uint seed = 0x578437adU;
                 //float value = perlinNoise(uv + _Time.y, seed);
-                float value = perlinNoise(float2(_position.x, _position.z) * 0.0625 + _Time.y, seed); // 1/16 = 0.0625
+                float value = perlinNoise(float2(_position.x, _position.z) * _Scale + _Time.y, seed); // 1/16 = 0.0625
                 value = (value + 1.0) * 0.5;
                 return value;
                 // sample the texture
