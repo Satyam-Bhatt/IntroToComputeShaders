@@ -179,10 +179,10 @@ Shader "Unlit/GrassShader_Final"
                 float3 _position = float3(m._m03, m._m13, m._m23);
 
                 uint seed = 0x578437adU;
-                float noiseValue = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y, seed);
+                float noiseValue = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y * _NoiseSpeed, seed);
                 noiseValue = (noiseValue + 1.0) * 0.5;
                 uint seed2 = 0x578463adU;
-                float noiseValue2 = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y, seed2);
+                float noiseValue2 = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y * _NoiseSpeed, seed2);
                 noiseValue2 = (noiseValue2 + 1.0) * 0.5;
 
                 float uvY = v.uv.y;
@@ -193,13 +193,13 @@ Shader "Unlit/GrassShader_Final"
 
                 // With Noise
                 v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale;
-				v.vertex.x = v.vertex.x + uvY * noiseValue2 * _BendScaleX;
+				v.vertex.x = v.vertex.x + uvY * noiseValue * _BendScaleX;
 
                 // Without Noise
                 //v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * _BlendAngleScale);
 
                 // With Noise
-                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue * 2 - 1));
+                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue));
 
                 float4 worldPos = mul(m, v.vertex);
 

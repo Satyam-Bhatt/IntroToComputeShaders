@@ -122,7 +122,7 @@ public class Grass : MonoBehaviour
         // Dispatch in Update shaders if we are updating the buffer every frame
         // computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 
-        testMat.SetBuffer("transform", transformBuffer);
+        //testMat.SetBuffer("transform", transformBuffer);
 
 
     }

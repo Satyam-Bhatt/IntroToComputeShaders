@@ -29,12 +29,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Angle: 20
+    - _Angle: 10
     - _BendFactor: 2.96
-    - _BendScale: 2.8
-    - _BendScaleX: 3.38
+    - _BendScale: 4.08
+    - _BendScaleX: 3.23
     - _BlendAngleScale: 1
-    - _NoiseScale: 1
+    - _NoiseScale: 0.0625
     - _NoiseSpeed: 1
     - _SmoothOne: 0.026
     - _SmoothTwo: 0.04
