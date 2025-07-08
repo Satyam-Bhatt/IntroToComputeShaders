@@ -39,7 +39,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     pos = float4(fmod(id.x, perAxis), pos.y, uint(num / perAxis), pos.w);
     
     float t = hash(id.x + id.y * 1000);
-    Angle = lerp(0, 360, t);
+    Angle = lerp(-45, 45, t);
     float angle = DegreeToRadian(Angle);
     //float4x4 transform = float4x4(
     //                                float4(1, 0, 0, pos.x),
