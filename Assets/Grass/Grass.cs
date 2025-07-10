@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -84,7 +83,7 @@ public class Grass : MonoBehaviour
         Matrix4x4[] transforms = new Matrix4x4[instanceCount];
         for (int i = 0; i < instanceCount; i++)
         {
-            transforms[i] = Matrix4x4.TRS(new Vector3(1,1,1), Quaternion.identity, Vector3.one);
+            transforms[i] = Matrix4x4.TRS(new Vector3(i,1,i), Quaternion.identity, Vector3.one);
         }
         transformBuffer.SetData(transforms);
 
@@ -99,18 +98,6 @@ public class Grass : MonoBehaviour
         _args[4] = 0;
 
         argsBuffer.SetData(_args);
-
-
-        Vector4[] positions = new Vector4[instanceCount];
-        for (int i = 0; i < instanceCount; i++)
-        {
-            //positions[i] = new Vector4(Random.Range(-1f, 1f) + i, 0, Random.Range(-1f, 1f) + i, 1);
-            positions[i] = new Vector4(0, 0, 0, 1);
-        }
-        positionBuffer.SetData(positions);
-
-        //computeShader.SetBuffer(kernel, "Result", positionBuffer);
-        //instanceMaterial.SetBuffer("position", positionBuffer);
 
         dispatchX = Mathf.CeilToInt(instanceCount / 8.0f);
         dispatchY = Mathf.CeilToInt(instanceCount / 8.0f);
