@@ -16,6 +16,69 @@ float hash(uint n)
     return float(n & uint(0x7fffffff)) / float(0x7fffffff);
 }
 
+uint hash(uint2 x, uint seed)
+{
+    const uint m = 0x5bd1e995U;
+    uint hash = seed;
+                // process first vector element
+    uint k = x.x;
+    k *= m;
+    k ^= k >> 24;
+    k *= m;
+    hash *= m;
+    hash ^= k;
+                // process second vector element
+    k = x.y;
+    k *= m;
+    k ^= k >> 24;
+    k *= m;
+    hash *= m;
+    hash ^= k;
+	            // some final mixing
+    hash ^= hash >> 13;
+    hash *= m;
+    hash ^= hash >> 15;
+    return hash;
+}
+
+float2 gradientDirection(uint hash)
+{
+    switch (int(hash) & 3)
+    { // look at the last two bits to pick a gradient direction
+        case 0:
+            return float2(1.0, 1.0);
+        case 1:
+            return float2(-1.0, 1.0);
+        case 2:
+            return float2(1.0, -1.0);
+        case 3:
+            return float2(-1.0, -1.0);
+    }
+}
+
+float interpolate(float value1, float value2, float value3, float value4, float2 t)
+{
+    return lerp(lerp(value1, value2, t.x), lerp(value3, value4, t.x), t.y);
+}
+
+float2 fade(float2 t)
+{
+                // 6t^5 - 15t^4 + 10t^3
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+float perlinNoise(float2 position, uint seed)
+{
+    float2 floorPosition = floor(position);
+    float2 fractPosition = position - floorPosition;
+    uint2 cellCoordinates = uint2(floorPosition);
+    float value1 = dot(gradientDirection(hash(cellCoordinates, seed)), fractPosition);
+    float value2 = dot(gradientDirection(hash((cellCoordinates + uint2(1, 0)), seed)), fractPosition - float2(1.0, 0.0));
+    float value3 = dot(gradientDirection(hash((cellCoordinates + uint2(0, 1)), seed)), fractPosition - float2(0.0, 1.0));
+    float value4 = dot(gradientDirection(hash((cellCoordinates + uint2(1, 1)), seed)), fractPosition - float2(1.0, 1.0));
+    return interpolate(value1, value2, value3, value4, fade(fractPosition));
+}
+
 float DegreeToRadian(float degree)
 {
     return degree * 0.0174533;
@@ -41,6 +104,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float t = hash(id.x + id.y * 1000);
     Angle = lerp(-30, 30, t);
     float angle = DegreeToRadian(Angle);
+    
+    uint seed = 0x578437adU;
+    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.1, seed);
+    heightModulator = (heightModulator + 1.0) * 0.5;
+    heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2;
+    heightModulator = pow(heightModulator, 1.2);
     //float4x4 transform = float4x4(
     //                                float4(1, 0, 0, pos.x),
     //                                float4(0, 1, 0, pos.y),
@@ -48,7 +117,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //                                float4(0, 0, 0, pos.w));
     float4x4 transform = float4x4(
                                     float4( cos(angle), 0, sin(angle), pos.x),
-                                    float4(    0      , 1,     0     , pos.y),
+                                    float4(    0      , 1 * heightModulator,     0     , pos.y),
                                     float4(-sin(angle), 0, cos(angle), pos.z),
                                     float4(    0      , 0,     0     , pos.w));
     
