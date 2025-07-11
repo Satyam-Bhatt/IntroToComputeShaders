@@ -9,6 +9,8 @@ Shader "Unlit/GrassShader_Final"
         _Third ("Third", Vector) = (0.035, 0.1, 0, 0)
         _BottomColor("Bottom Color", Color) = (0, 0, 0, 1)
         _TopColor("Top Color", Color) = (0, 0, 0, 1)
+        _BottomColor2("Bottom Color 2", Color) = (0, 0, 0, 1)
+		_TopColor2("Top Color 2", Color) = (0, 0, 0, 1)
         _BendFactor("Bend Factor", Float) = 0
         _BendScale("Bend Scale", Float) = 0
         _BendScaleX("Bend Scale X", Float) = 0
@@ -46,6 +48,7 @@ Shader "Unlit/GrassShader_Final"
             #include "AutoLight.cginc"
 
             StructuredBuffer<float4x4> transform;
+            StructuredBuffer<float4x4> noise;
 
             struct appdata
             {
@@ -57,6 +60,7 @@ Shader "Unlit/GrassShader_Final"
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                uint instanceID : TEXCOORD2;
             };
 
             uint hash(uint2 x, uint seed){
@@ -170,7 +174,7 @@ Shader "Unlit/GrassShader_Final"
             }
 
             sampler2D _MainTex;
-            float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor;
+            float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor, _BottomColor2, _TopColor2;
             float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale, _NoiseScale, _NoiseSpeed;
 
             v2f vert (appdata v, const uint id : SV_InstanceID)
@@ -204,12 +208,14 @@ Shader "Unlit/GrassShader_Final"
                 float4 worldPos = mul(m, v.vertex);
 
                 v2f o;
+                o.instanceID = id;
+
                 o.vertex = UnityObjectToClipPos(worldPos);
                 o.uv = v.uv;
                 return o;
             }
 
-            float4 frag (v2f i, const uint id : SV_InstanceID) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
 				float2 uv = i.uv * 2 - 1;
                 //uv = uv * 6;
@@ -229,9 +235,16 @@ Shader "Unlit/GrassShader_Final"
                 final = abs(final) + 0.1;
                 final = pow(final, 0.6);
 
+                uint id = i.instanceID;
+
+                noiseValue = noise[id];
+                float4 bottomFinal = lerp(_BottomColor, _BottomColor2, noiseValue);
+                float4 topFinal = lerp(_TopColor, _TopColor2, noiseValue);
+
                 float2 uvCol = i.uv;
                 uvCol.y = pow(uvCol.y, 2);
-                float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
+                //float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
+                float4 col = lerp(bottomFinal, topFinal, noiseValue);
                 float4 grassBlade = float4( final * col.rgb, 1);
                 if(mask == 0) discard;
                 return grassBlade;

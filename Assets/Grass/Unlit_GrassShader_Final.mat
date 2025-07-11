@@ -40,7 +40,9 @@ Material:
     - _SmoothTwo: 0.04
     m_Colors:
     - _BottomColor: {r: 0.13843836, g: 0.26415092, b: 0.06354573, a: 1}
+    - _BottomColor2: {r: 0.5283019, g: 0.33615303, b: 0.102171585, a: 1}
     - _First: {r: 0.085, g: 0.9, b: 0, a: 0}
     - _Third: {r: 0.01, g: 0.13, b: 0, a: 0}
-    - _TopColor: {r: 0.15923643, g: 1, b: 0, a: 1}
+    - _TopColor: {r: 0.16078448, g: 1, b: 0, a: 1}
+    - _TopColor2: {r: 1, g: 0.6486544, b: 0, a: 1}
   m_BuildTextureStacks: []

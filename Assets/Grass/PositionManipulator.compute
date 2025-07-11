@@ -3,6 +3,7 @@
 
 //RWStructuredBuffer<float4> Result;
 RWStructuredBuffer<float4x4> Result;
+RWStructuredBuffer<float4> noise;
 int count;
 
 float dispatchX;
@@ -113,8 +114,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     pos = float4(fmod(id.x, perAxis) + x_Disp, pos.y, uint(num / perAxis) + y_Disp, pos.w);
     
     uint seed = 0x578437adU;
-    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.1, seed);
+    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed);
     heightModulator = (heightModulator + 1.0) * 0.5;
+    noise[num] = heightModulator;
     heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2;
     heightModulator = pow(heightModulator, 1.2);
     //float4x4 transform = float4x4(

@@ -19,8 +19,10 @@ public class Grass : MonoBehaviour
     private ComputeBuffer transformBuffer;
     private const int TRANSFORM_STRIDE = sizeof(float) * 16;
 
+    private ComputeBuffer noiseBuffer;
+    private const int NOISE_STRIDE = sizeof(float);
+
     private int dispatchX, dispatchY, dispatchZ;
-    [SerializeField] private float angle = 0f;
 
     [SerializeField] private Material testMat;
 
@@ -37,6 +39,7 @@ public class Grass : MonoBehaviour
         }
 
         transformBuffer = new ComputeBuffer(instanceCount, TRANSFORM_STRIDE);
+        noiseBuffer = new ComputeBuffer(instanceCount, NOISE_STRIDE);
     }
 
     private void OnDisable()
@@ -71,24 +74,28 @@ public class Grass : MonoBehaviour
 
     private void Update()
     {
-        computeShader.SetFloat("Angle", angle);
-        computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 
         Graphics.DrawMeshInstancedIndirect(instanceMesh, 0, instanceMaterial, new Bounds(Vector3.zero, Vector3.one * 1000), argsBuffer);
     }
 
     private void UpdateBuffer()
     {
+        // Noise Buffer
+        float[] noise = new float[instanceCount];
         //Transform Buffer
         Matrix4x4[] transforms = new Matrix4x4[instanceCount];
         for (int i = 0; i < instanceCount; i++)
         {
             transforms[i] = Matrix4x4.TRS(new Vector3(i,1,i), Quaternion.identity, Vector3.one);
+            noise[i] = 0.0f;
         }
         transformBuffer.SetData(transforms);
+        noiseBuffer.SetData(noise);
 
         computeShader.SetBuffer(kernel, "Result", transformBuffer);
         instanceMaterial.SetBuffer("transform", transformBuffer);
+        computeShader.SetBuffer(kernel, "noise", noiseBuffer);
+        instanceMaterial.SetBuffer("noise", noiseBuffer);
 
         uint[] _args = {0 , 1, 0, 0, 0 };
         _args[0] = (uint)instanceMesh.GetIndexCount(0);
@@ -107,7 +114,7 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat("dispatchY", dispatchY);
         computeShader.SetInt("count", instanceCount);
         // Dispatch in Update shaders if we are updating the buffer every frame
-        // computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
+        computeShader.Dispatch(kernel, dispatchX, dispatchY, dispatchZ);
 
         //testMat.SetBuffer("transform", transformBuffer);
 
