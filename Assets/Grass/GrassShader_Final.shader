@@ -39,13 +39,13 @@ Shader "Unlit/GrassShader_Final"
             #pragma multi_compile_instancing // Enables GPU instancing
 
             // Signal this shader requires compute buffers
-             #pragma prefer_hlslcc gles
-             #pragma exclude_renderers d3d11_9x
-             //#pragma target 5.0
+            //#pragma prefer_hlslcc gles
+            //#pragma exclude_renderers d3d11_9x
+            //#pragma target 5.0
 
             #include "UnityCG.cginc"
-            #include "Lighting.cginc"
-            #include "AutoLight.cginc"
+            //#include "Lighting.cginc"
+            //#include "AutoLight.cginc"
 
             StructuredBuffer<float4x4> transform;
             StructuredBuffer<float4x4> noise;
@@ -233,18 +233,18 @@ Shader "Unlit/GrassShader_Final"
                 float mask = final;
                 mask = 1 - step(0.01, mask);
                 final = abs(final) + 0.1;
-                final = pow(final, 0.6);
+                final = pow(final, 0.9);
 
                 uint id = i.instanceID;
 
-                noiseValue = noise[id];
+                float noiseValue = noise[id];
                 float4 bottomFinal = lerp(_BottomColor, _BottomColor2, noiseValue);
                 float4 topFinal = lerp(_TopColor, _TopColor2, noiseValue);
 
                 float2 uvCol = i.uv;
                 uvCol.y = pow(uvCol.y, 2);
                 //float4 col = lerp(_BottomColor, _TopColor, uvCol.y);
-                float4 col = lerp(bottomFinal, topFinal, noiseValue);
+                float4 col = lerp(bottomFinal, topFinal, uvCol.y);
                 float4 grassBlade = float4( final * col.rgb, 1);
                 if(mask == 0) discard;
                 return grassBlade;

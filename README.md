@@ -21,7 +21,15 @@ This repository showcases a collection of GPU and compute shader-based tech demo
   <p align="left">
   <img src="mediaForReadme/Grass.png" alt="Shell Texturing" width="400"/>
   </p>
-  <!-- ![Shell Texturing](mediaForReadme/Grass.png) -->
+ 
+ - **Grass**  
+  Made moving grass using GPU instancing.
+  <p align="left">
+  <img src="mediaForReadme/g1.gif" alt="Color Grass" width="400"/>
+  </p>
+  <p align = "right">
+  <img src="mediaForReadme/g1.gif" alt="Color Grass" width="400"/>
+  </p>
 
 ---
 
