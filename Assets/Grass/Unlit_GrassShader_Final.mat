@@ -34,8 +34,8 @@ Material:
     - _BendScale: 4.08
     - _BendScaleX: 3.23
     - _BlendAngleScale: 1
-    - _NoiseScale: 0.0625
-    - _NoiseSpeed: 1
+    - _NoiseScale: 0.08
+    - _NoiseSpeed: 1.25
     - _SmoothOne: 0.026
     - _SmoothTwo: 0.04
     m_Colors:

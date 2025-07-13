@@ -1,10 +1,11 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-//RWStructuredBuffer<float4> Result;
 RWStructuredBuffer<float4x4> Result;
 RWStructuredBuffer<float4> noise;
 int count;
+int chunkOffset; // Add this for chunk support
+int totalCount; // Add this for total instance count
 
 float dispatchX;
 float dispatchY;
@@ -21,21 +22,21 @@ uint hash(uint2 x, uint seed)
 {
     const uint m = 0x5bd1e995U;
     uint hash = seed;
-                // process first vector element
+    // process first vector element
     uint k = x.x;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
-                // process second vector element
+    // process second vector element
     k = x.y;
     k *= m;
     k ^= k >> 24;
     k *= m;
     hash *= m;
     hash ^= k;
-	            // some final mixing
+    // some final mixing
     hash ^= hash >> 13;
     hash *= m;
     hash ^= hash >> 15;
@@ -45,7 +46,7 @@ uint hash(uint2 x, uint seed)
 float2 gradientDirection(uint hash)
 {
     switch (int(hash) & 3)
-    { // look at the last two bits to pick a gradient direction
+    {
         case 0:
             return float2(1.0, 1.0);
         case 1:
@@ -64,7 +65,6 @@ float interpolate(float value1, float value2, float value3, float value4, float2
 
 float2 fade(float2 t)
 {
-                // 6t^5 - 15t^4 + 10t^3
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
@@ -85,51 +85,49 @@ float DegreeToRadian(float degree)
     return degree * 0.0174533;
 }
 
-//TODO: 
-// - move perlin noise to the script so that we don't compute it again and again.
-// - move the position generation to the script and don't use the buffer to calculate it every frame.
-// - use compute shader only when we want to make the grass interact with something
 [numthreads(8, 8, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    // dispatchX gives the number of thread groups in the X dimension and 
-    // multiplying by 8 gives the number of threads in the X dimension
-    // num gives individual ID to eash thread and converts a vec2 to a float. This is how we access and modify the buffer
-    uint num = id.x + id.y * dispatchX * 8; // x value of numthreads
+    // Calculate the actual index in the buffer
+    uint num = id.x + id.y * dispatchX * 8;
     
-    float4x4 m = Result[num];
+    // Add chunk offset to get the real buffer index
+    uint bufferIndex = num + chunkOffset;
+    
+    // Early exit if we're beyond the current chunk
+    if (num >= count || bufferIndex >= totalCount)
+        return;
+    
+    float4x4 m = Result[bufferIndex];
     float4 pos = float4(m[0][3], m[1][3], m[2][3], m[3][3]);
     
-    // We want the grass to cover a square of size count * count so x and y should be equal
-    int perAxis = pow(count, 0.5);
+    // Use totalCount for consistent grid layout across chunks
+    int perAxis = pow(totalCount, 0.5);
     
-    float t = hash(id.x + id.y * 1000);
+    // Use bufferIndex for consistent positioning across chunks
+    float t = hash(bufferIndex + 1000);
     Angle = lerp(-30, 30, t);
     float angle = DegreeToRadian(Angle);
     
-    float x_Disp = hash(id.x + id.y * 1000);
-    float y_Disp = hash(id.x * 123 + id.y * 1000);
-    // For x component we use mod so that it comes back to 0 after reaching perAxis value
-    // For z component we increase the value when we reach perAxis
-    pos = float4(fmod(id.x, perAxis) + x_Disp, pos.y, uint(num / perAxis) + y_Disp, pos.w);
+    float x_Disp = hash(bufferIndex + 1000);
+    float y_Disp = hash(bufferIndex * 123 + 1000);
+    
+    // Calculate grid position based on total buffer index
+    pos = float4(fmod(bufferIndex, perAxis) + x_Disp, pos.y, uint(bufferIndex / perAxis) + y_Disp, pos.w);
     
     uint seed = 0x578437adU;
     float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed);
     heightModulator = (heightModulator + 1.0) * 0.5;
-    noise[num] = heightModulator;
+    noise[bufferIndex] = heightModulator;
     heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2;
     heightModulator = pow(heightModulator, 1.2);
-    //float4x4 transform = float4x4(
-    //                                float4(1, 0, 0, pos.x),
-    //                                float4(0, 1, 0, pos.y),
-    //                                float4(0, 0, 1, pos.z),
-    //                                float4(0, 0, 0, pos.w));
-    float4x4 transform = float4x4(
-                                    float4(cos(angle), 0, sin(angle), pos.x),
-                                    float4(0, 1 * heightModulator, 0, pos.y),
-                                    float4(-sin(angle), 0, cos(angle), pos.z),
-                                    float4(0, 0, 0, pos.w));
     
-    //pos = float4(pos.x + hash(id.x) + id.x, pos.y, pos.z + hash(id.x) * 10 + id.x, pos.w);
-    Result[num] = transform;
+    float4x4 transform = float4x4(
+        float4(cos(angle), 0, sin(angle), pos.x),
+        float4(0, 1 * heightModulator, 0, pos.y),
+        float4(-sin(angle), 0, cos(angle), pos.z),
+        float4(0, 0, 0, pos.w)
+    );
+    
+    Result[bufferIndex] = transform;
 }
