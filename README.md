@@ -23,7 +23,7 @@ This repository showcases a collection of GPU and compute shader-based tech demo
   </p>
  
  - **Grass**  
-  Made moving grass using GPU instancing.
+  Made moving grass using GPU instancing and Chunking.
   <div>
     <img src="mediaForReadme/g1.gif" alt="Color Grass" width="400" style="display: inline-block; margin-right: 10px;"/>
     <img src="mediaForReadme/g2.gif" alt="Color Grass" width="400" style="display: inline-block;"/>
