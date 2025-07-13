@@ -110,18 +110,22 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     Angle = lerp(-30, 30, t); // Randomize the angle as value of t is between 0 and 1
     float angle = DegreeToRadian(Angle);// Randomize the angle between -30 and 30
     
-    float x_Disp = hash(bufferIndex + 1000); // These values are just there to randomise the placement of the grass in the grid. Although it is a value between 1 and 0 and makes a small difference
-    float y_Disp = hash(bufferIndex * 123 + 1000); // These values are just there to randomise the placement of the grass in the grid. Although it is a value between 1 and 0 and makes a small difference
+    // These values are just there to randomise the placement of the grass in the grid. 
+    // Although it is a value between 1 and 0 and makes a small difference
+    float x_Disp = hash(bufferIndex + 1000); 
+    float y_Disp = hash(bufferIndex * 123 + 1000); 
     
     // Calculate grid position based on total buffer index
     // For x component we use mod so that it comes back to 0 after reaching perAxis value
     // For z component we increase the value when we reach perAxis
     pos = float4(fmod(bufferIndex, perAxis) + x_Disp, pos.y, uint(bufferIndex / perAxis) + y_Disp, pos.w);
     
+    // Randomize the height of the grass but with perlin noise so that it looks more natural and smooth
     uint seed = 0x578437adU;
-    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed); // Randomize the height of the grass but with perlin noise so that it looks more natural and smooth
+    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed); 
     heightModulator = (heightModulator + 1.0) * 0.5; // Make it between 0 and 1
-    noise[bufferIndex] = heightModulator; // We store it in a buffer and pass it to the shader so that tall grass looks older (brown) and short/younger grass looks green
+    // We store it in a buffer and pass it to the shader so that tall grass looks older (brown) and short/younger grass looks green
+    noise[bufferIndex] = heightModulator; 
     heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2; 
     heightModulator = pow(heightModulator, 1.2);
     
