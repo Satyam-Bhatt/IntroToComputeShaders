@@ -39,9 +39,9 @@ Shader "Unlit/GrassShader_Final"
             #pragma multi_compile_instancing // Enables GPU instancing
 
             // Signal this shader requires compute buffers
-            //#pragma prefer_hlslcc gles
-            //#pragma exclude_renderers d3d11_9x
-            //#pragma target 5.0
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 5.0
 
             #include "UnityCG.cginc"
             //#include "Lighting.cginc"
@@ -109,6 +109,8 @@ Shader "Unlit/GrassShader_Final"
 	            return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
             }
 
+            // Copied this from Shadertoy
+            // https://www.shadertoy.com/view/NlSGDz
             float perlinNoise(float2 position, uint seed) {
                 float2 floorPosition = floor(position);
                 float2 fractPosition = position - floorPosition;
@@ -177,65 +179,74 @@ Shader "Unlit/GrassShader_Final"
             float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor, _BottomColor2, _TopColor2;
             float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale, _NoiseScale, _NoiseSpeed;
 
+            // Used to bend and rotate the upper region of the mesh as per the value of perlin noise so that it looks like leaf swaying in the wind
+            // I use UV coordinates in y axis to determine how much to bend the grass blades
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
                 float4x4 m = transform[id];
-                float3 _position = float3(m._m03, m._m13, m._m23);
+                float3 _position = float3(m._m03, m._m13, m._m23); // Get position from the last column of the matrix
 
                 uint seed = 0x578437adU;
+                // Calculating perlin noise is pretty expensive. We can use a sin + cos function instead of perlin noise
                 float noiseValue = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y * _NoiseSpeed, seed);
-                noiseValue = (noiseValue + 1.0) * 0.5;
-                uint seed2 = 0x578463adU;
-                float noiseValue2 = perlinNoise(float2(_position.x, _position.z) * _NoiseScale + _Time.y * _NoiseSpeed, seed2);
-                noiseValue2 = (noiseValue2 + 1.0) * 0.5;
+                noiseValue = (noiseValue + 1.0) * 0.5; // Normalizing the value between 0 and 1
 
                 float uvY = v.uv.y;
+                // Bending.
+                // just plot x^a on desmos. Make _BendFactor a more than one then we will have bend. Higher the value More bend at the tip
                 uvY = pow(uvY, _BendFactor);
                 // Without Noise
                 //v.vertex.z = v.vertex.z + uvY * _BendScale;
 				//v.vertex.x = v.vertex.x + uvY * _BendScaleX;
 
                 // With Noise
-                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale;
-				v.vertex.x = v.vertex.x + uvY * noiseValue * _BendScaleX;
+                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale; // Move the vertex in z axis by the amount of bend and noise value determines the amount of bend at the tip so that it simulates wind
+				v.vertex.x = v.vertex.x + uvY * noiseValue * _BendScaleX; // Move the vertex in x axis by the amount of bend
 
                 // Without Noise
                 //v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * _BlendAngleScale);
 
                 // With Noise
-                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue));
+                v.vertex.xyz = RotateAroundY(v.vertex.xyz, _Angle * 3.14159/180 * uvY * (noiseValue)); // Rotate the tip as well a bit
 
-                float4 worldPos = mul(m, v.vertex);
+                float4 worldPos = mul(m, v.vertex); // Get world position
 
                 v2f o;
-                o.instanceID = id;
+                o.instanceID = id; // Instance ID to pass in fragment Shader
 
                 o.vertex = UnityObjectToClipPos(worldPos);
                 o.uv = v.uv;
                 return o;
             }
 
+            // Here basically I am just drawing Elipse SDF and combining them together to make them look like a leaf
+            // Then I am adding some dark edges by taking the absolute value of SDF as values inside and SDF are negative
+            // I use those combined elipse as a mask for the grass blade and discard the pixels that are outside the leaf mask
+            // I also use that noise buffer that I populate in the compute shader to determine which color I need to paint the leaf
+            // If the value in the noise buffer is around 1 then the grass is tall and I need to make it brown
+            // but if the value in the noise buffer is around 0 then the grass is short and I need to make it green
+            // I lerp between the base and tip color using the y value of the UV as y is 0 at the base and 1 at the tip
             float4 frag (v2f i) : SV_Target
             {
 				float2 uv = i.uv * 2 - 1;
                 //uv = uv * 6;
-                float elpise = sdEllipse(uv, float2(_First.x, _First.y));
+                float elpise = sdEllipse(uv, float2(_First.x, _First.y)); // There is something wrong with these. They produce artifacts
                 //elpise = pow(elpise, 0.8);
                 float2 uv2 = i.uv * 2 - 1;
                 uv2.y = uv2.y + 0.55;
-                float elpise2 = sdEllipse(uv2, float2(0.03, 0.25));
+                float elpise2 = sdEllipse(uv2, float2(0.03, 0.25)); // There is something wrong with these. They produce artifacts
                 float first = smin(elpise, elpise2, _SmoothOne);
                 //return first;
                 float2 uv3 = i.uv * 2 - 1;
 				uv3.y = uv3.y + 0.75;
-                float elpise3 = sdEllipse(uv3, float2(_Third.x, _Third.y));
+                float elpise3 = sdEllipse(uv3, float2(_Third.x, _Third.y)); // There is something wrong with these. They produce artifacts
                 float final = smin(first, elpise3, _SmoothTwo);
                 float mask = final;
                 mask = 1 - step(0.01, mask);
                 final = abs(final) + 0.1;
                 final = pow(final, 0.9);
 
-                uint id = i.instanceID;
+                uint id = i.instanceID; // Instance ID that we Get from vertex shader
 
                 float noiseValue = noise[id];
                 float4 bottomFinal = lerp(_BottomColor, _BottomColor2, noiseValue);

@@ -4,8 +4,8 @@
 RWStructuredBuffer<float4x4> Result;
 RWStructuredBuffer<float4> noise;
 int count;
-int chunkOffset; // Add this for chunk support
-int totalCount; // Add this for total instance count
+int chunkOffset; // Used for offsetting the buffer so that we can handle multiple chunks and access the correct data
+int totalCount; // Used for square grid layout. To determine the size(X and Y) of the grid
 
 float dispatchX;
 float dispatchY;
@@ -68,6 +68,7 @@ float2 fade(float2 t)
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
+// Copied perlin noise from here : // https://www.shadertoy.com/view/NlSGDz
 float perlinNoise(float2 position, uint seed)
 {
     float2 floorPosition = floor(position);
@@ -94,34 +95,39 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Add chunk offset to get the real buffer index
     uint bufferIndex = num + chunkOffset;
     
-    // Early exit if we're beyond the current chunk
+    // Early exit if we're beyond the current chunk as then we would access out of bounds data or data that doesn't exist (kinda)
     if (num >= count || bufferIndex >= totalCount)
         return;
     
     float4x4 m = Result[bufferIndex];
     float4 pos = float4(m[0][3], m[1][3], m[2][3], m[3][3]);
     
-    // Use totalCount for consistent grid layout across chunks
+    // Use totalCount to determine the size of the grid
     int perAxis = pow(totalCount, 0.5);
     
     // Use bufferIndex for consistent positioning across chunks
     float t = hash(bufferIndex + 1000);
-    Angle = lerp(-30, 30, t);
-    float angle = DegreeToRadian(Angle);
+    Angle = lerp(-30, 30, t); // Randomize the angle as value of t is between 0 and 1
+    float angle = DegreeToRadian(Angle);// Randomize the angle between -30 and 30
     
-    float x_Disp = hash(bufferIndex + 1000);
-    float y_Disp = hash(bufferIndex * 123 + 1000);
+    float x_Disp = hash(bufferIndex + 1000); // These values are just there to randomise the placement of the grass in the grid. Although it is a value between 1 and 0 and makes a small difference
+    float y_Disp = hash(bufferIndex * 123 + 1000); // These values are just there to randomise the placement of the grass in the grid. Although it is a value between 1 and 0 and makes a small difference
     
     // Calculate grid position based on total buffer index
+    // For x component we use mod so that it comes back to 0 after reaching perAxis value
+    // For z component we increase the value when we reach perAxis
     pos = float4(fmod(bufferIndex, perAxis) + x_Disp, pos.y, uint(bufferIndex / perAxis) + y_Disp, pos.w);
     
     uint seed = 0x578437adU;
-    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed);
-    heightModulator = (heightModulator + 1.0) * 0.5;
-    noise[bufferIndex] = heightModulator;
-    heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2;
+    float heightModulator = perlinNoise(float2(pos.x, pos.z) * 0.05, seed); // Randomize the height of the grass but with perlin noise so that it looks more natural and smooth
+    heightModulator = (heightModulator + 1.0) * 0.5; // Make it between 0 and 1
+    noise[bufferIndex] = heightModulator; // We store it in a buffer and pass it to the shader so that tall grass looks older (brown) and short/younger grass looks green
+    heightModulator = clamp(heightModulator, 0.6, 1.0) + 0.2; 
     heightModulator = pow(heightModulator, 1.2);
     
+    // Set the rotation in y axis
+    // Set the position in last column
+    // Set the scale in position [1,1]
     float4x4 transform = float4x4(
         float4(cos(angle), 0, sin(angle), pos.x),
         float4(0, 1 * heightModulator, 0, pos.y),
@@ -129,5 +135,6 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         float4(0, 0, 0, pos.w)
     );
     
+    // Update the buffer
     Result[bufferIndex] = transform;
 }

@@ -101,13 +101,14 @@ Shader "Unlit/NewPerlinNoise"
                 return o;
             }
 
-
+            // Used it to visualize perlin noise as per the position in the transform buffer
             float4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv * 16;
                 float2 uv_ID = floor(uv);
                 //return float4(uv/16, 0, 1);
 
+                // ID is 
 				uint id = 16 * floor(uv_ID.y) + floor(uv_ID.x);
                 float4x4 m = transform[id];
                 float3 _position = float3(m._m03, m._m13, m._m23);
