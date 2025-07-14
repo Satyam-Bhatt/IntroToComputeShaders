@@ -179,7 +179,8 @@ Shader "Unlit/GrassShader_Final"
             float4 _MainTex_ST, _First, _Second, _Third, _BottomColor, _TopColor, _BottomColor2, _TopColor2;
             float _SmoothOne, _SmoothTwo, _BendFactor, _BendScale, _BendScaleX, _Angle, _BlendAngleScale, _NoiseScale, _NoiseSpeed;
 
-            // Used to bend and rotate the upper region of the mesh as per the value of perlin noise so that it looks like leaf swaying in the wind
+            // Used to bend and rotate the upper region of the mesh as per the value of perlin noise so that it looks like leaf swaying 
+            // in the wind
             // I use UV coordinates in y axis to determine how much to bend the grass blades
             v2f vert (appdata v, const uint id : SV_InstanceID)
             {
@@ -200,7 +201,8 @@ Shader "Unlit/GrassShader_Final"
 				//v.vertex.x = v.vertex.x + uvY * _BendScaleX;
 
                 // With Noise
-                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale; // Move the vertex in z axis by the amount of bend and noise value determines the amount of bend at the tip so that it simulates wind
+                // Move the vertex in z axis by the amount of bend and noise value determines the amount of bend at the tip so that it simulates wind
+                v.vertex.z = v.vertex.z + uvY * noiseValue * _BendScale; 
 				v.vertex.x = v.vertex.x + uvY * noiseValue * _BendScaleX; // Move the vertex in x axis by the amount of bend
 
                 // Without Noise
